@@ -1,0 +1,27 @@
+{
+    "manifest_version": 2,
+    "name": "Linkedin learning Video downloader",
+    "version": "1.1",
+    "description": "blabal",
+    "homepage_url": "https://github.com/",
+    "icons": {
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png"
+    },
+
+    "permissions": [
+        "<all_urls>",
+        "activeTab",
+        "tabs"
+    ],
+
+    "browser_action": {
+      "default_icon": "icons/icon-48.png",
+      "default_title": "LVLD"
+    },
+
+    "background": {
+      "scripts": ["background.js"]
+    }
+
+  }

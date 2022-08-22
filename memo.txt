@@ -1,0 +1,65 @@
+console.log("##########################################");
+        // create a new div element
+        const newDiv = document.querySelectorAll('.popup-video-nbr');
+
+        // and give it some content
+        const courses_lst = document.querySelectorAll(
+            '.classroom-toc-item__link',
+        );
+        console.log('courses_lst ', courses_lst);
+        const newContent = document.createTextNode("Il y a : ",courses_lst.length," cours");
+
+        // add the text node to the newly created div
+        newDiv.appendChild(newContent);
+
+        // add the newly created element and its content into the DOM
+        const currentDiv = document.getElementById("popup-content");
+        document.body.insertBefore(newDiv, currentDiv);
+
+
+
+
+
+
+    // console.log('start');
+	// 		const courses_lst = document.querySelectorAll(
+	// 			'.classroom-toc-item__link',
+	// 		);
+	// 		console.log('courses_lst ', courses_lst);
+
+	// 		const courses_url = [];
+	// 		courses_lst.forEach((element) => {
+	// 			courses_url.push(element.href);
+	// 		});
+	// 		console.log('courses_url', courses_url);
+
+
+manifest.js
+{
+    "description": "Ajoute une bordure rouge pleine sur l'ensemble des pages web mozilla.org.",
+    "manifest_version": 2,
+    "name": "Learning Video Linkedin Downloader",
+    "version": "1.0",
+    "icons": {
+        "48": "icons/icon-48.png"
+    },
+    "permissions": [
+        "activeTab",
+        "tabs"
+    ],
+    "browser_action": {
+        "default_icon": "icons/icon-32.png",
+        "theme_icons": [
+            {
+                "light": "icons/icon-32.png",
+                "dark": "icons/icon-32.png",
+                "size": 32
+            }
+        ],
+        "default_title": "Linkedin Learning Video",
+        "default_popup": "popup/popup-index.html"
+    },
+    "background": {
+        "scripts": ["background.js"]
+      }
+}

@@ -12,7 +12,8 @@
     "permissions": [
         "<all_urls>",
         "activeTab",
-        "tabs"
+        "tabs",
+        "downloads"
     ],
 
     "browser_action": {

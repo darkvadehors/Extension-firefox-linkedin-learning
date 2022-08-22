@@ -23,7 +23,35 @@ function badge(length) {
 	}
 }
 
+function cresteTabs(element) {
+	browser.tabs.create({ url: element }, (tab) => {
+		console.log('tab', tab.id);
+
+		console.log('entree cresteTabs');
+
+		browser.tabs
+			.executeScript(tab.id, { file: 'tabs.js' })
+			.then(async (results) => {
+				console.log('result ', results);
+				return results;
+			})
+			.then(() => {
+				// on ferme la tab precedement ouverte
+				browser.tabs.remove(tab.id);
+			})
+			.catch((error) => {
+				// This could happen if the extension is not allowed to run code in
+				// the page, for example if the tab is a privileged page.
+				console.error('Failed to copy text: ' + error);
+			}); // execute the script in the new tab with tab.id
+
+		console.log('Sortie cresteTabs');
+	});
+}
+
 (async () => {
+	let url = [];
+
 	// receive the array from script.js
 	browser.runtime.onMessage.addListener((requestCs) => {
 		// console.log('request', request);
@@ -42,29 +70,20 @@ function badge(length) {
 				badge(length);
 				// open each tabs
 
-				browser.tabs.create({ url: element }, (tab) => {
-					console.log('tab', tab.id);
+				new Promise((resolve, reject) => {
+					console.log('Initial');
+					resolve();
+				})
+					.then(() => {
+						cresteTabs(element);
+					})
+					.then(() => {
+						url.push(url);
+					})
+					.catch(() => {
+						console.error('Do that');
+					});
 
-					console.log('avant await');
-
-					browser.tabs
-						.executeScript(tab.id, { file: 'tabs.js' })
-						.then((results) => {
-							// The content script's last expression will be true if the function
-							// has been defined. If this is not the case, then we need to run
-							// clipboard-helper.js to define function copyToClipboard.
-							//if (!results || results[0] !== true) {
-							console.log('result ', results);
-							//}
-						})
-						.catch((error) => {
-							// This could happen if the extension is not allowed to run code in
-							// the page, for example if the tab is a privileged page.
-							console.error('Failed to copy text: ' + error);
-						}); // execute the script in the new tab with tab.id
-
-					console.log('after await');
-				});
 				/**
 				 * Fonction Future
 				 */

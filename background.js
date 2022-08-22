@@ -70,19 +70,11 @@ function cresteTabs(element) {
 				badge(length);
 				// open each tabs
 
-				new Promise((resolve, reject) => {
-					console.log('Initial');
-					resolve();
-				})
-					.then(() => {
-						cresteTabs(element);
-					})
-					.then(() => {
-						url.push(url);
-					})
-					.catch(() => {
-						console.error('Do that');
-					});
+
+					const video =	cresteTabs(element);
+
+    				url.push(video);
+
 
 				/**
 				 * Fonction Future

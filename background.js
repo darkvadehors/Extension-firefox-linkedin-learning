@@ -11,6 +11,15 @@ function onError(error) {
 	console.log(`Error: ${error}`);
 }
 
+function badge(length){
+    // add the number of the course and the red color to the button
+    if (length > 0) {
+        browser.browserAction.setBadgeText({ text: length.toString() });
+        }   else {
+            browser.browserAction.setBadgeText({ text: '' });
+        }
+
+}
 (async () => {
 	// receive the array from script.js
 	browser.runtime.onMessage.addListener((requestCs) => {
@@ -32,11 +41,10 @@ function onError(error) {
 			// create a new tab for each course
 			// For ...of version
 			for (const element of requestCs.courses_url) {
-				// add the number of the course and the red color to the button
-				browser.browserAction.setBadgeText({ text: length.toString() });
 
+                badge(length);
 				// open each tabs
-				(async () => {
+
 					browser.tabs.create({ url: element }, (tab) => {
 						console.log('tab', tab.id);
 
@@ -48,9 +56,9 @@ function onError(error) {
 								// The content script's last expression will be true if the function
 								// has been defined. If this is not the case, then we need to run
 								// clipboard-helper.js to define function copyToClipboard.
-								if (!results || results[0] !== true) {
+								//if (!results || results[0] !== true) {
 									console.log("result ", results);
-								}
+								//}
 							})
 							.catch((error) => {
 								// This could happen if the extension is not allowed to run code in
@@ -59,8 +67,8 @@ function onError(error) {
 							}); // execute the script in the new tab with tab.id
 
 						console.log('after await');
-					});
-				})();
+
+				});
 				/**
 				 * Fonction Future
 				 */

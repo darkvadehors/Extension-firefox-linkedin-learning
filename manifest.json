@@ -1,6 +1,6 @@
 {
     "manifest_version": 2,
-    "name": "Linkedin learning Video downloader",
+    "name": "Linkedin learning Video Downloader",
     "version": "1.1",
     "description": "blabal",
     "homepage_url": "https://github.com/",
@@ -18,7 +18,7 @@
 
     "browser_action": {
       "default_icon": "icons/icon-48.png",
-      "default_title": "LVLD"
+      "default_title": "Linkedin learning Video Downloader"
     },
 
     "background": {

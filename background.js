@@ -83,13 +83,20 @@
 				 * @var element
 				 */
 				const createTabs = new Promise((resolve, reject) => {
-					browser.tabs.create({ url: element, active: true }, (tab) => {
-						console.log('3 entree ================> cresteTabs');
-						tabId = tab.id;
-						console.log('3.1 tabId', tabId);
-						console.log('5 Sortie ================> cresteTabs');
-						resolve(true);
-					});
+					browser.tabs.create(
+						{ url: element, active: true },
+						(tab) => {
+							console.log(
+								'3 entree ================> cresteTabs',
+							);
+							tabId = tab.id;
+							console.log('3.1 tabId', tabId);
+							console.log(
+								'5 Sortie ================> cresteTabs',
+							);
+							resolve(true);
+						},
+					);
 				});
 
 				/**
@@ -103,7 +110,6 @@
 					browser.tabs
 						.executeScript(tabId, { file: 'tabs.js' })
 						.then((results) => {
-
 							console.log('result ', results);
 							// return results;
 							console.log(
@@ -137,6 +143,8 @@
 								' 9 ================> Fin Promisa.all',
 								values,
 							);
+							// on ferme la tab precedement ouverte
+							browser.tabs.remove(tabId);
 							const result = true;
 						},
 					);
@@ -182,11 +190,8 @@ function onClick() {
 
 browser.browserAction.onClicked.addListener(onClick);
 
-
 function handleActivated(activeInfo) {
-    console.log("Tab " + activeInfo.tabId +
-                " was activated");
-  }
+	console.log('Tab ' + activeInfo.tabId + ' was activated');
+}
 
-  browser.tabs.onActivated.addListener(handleActivated);
-
+browser.tabs.onActivated.addListener(handleActivated);

@@ -2,41 +2,19 @@
 
 'use strict';
 
-/**
- * A supprimer ancien test
- */
-// function onExecuted(result) {
-// 	console.log(`We executed in all subframes`);
-// 	return;
-// }
-
-// function onError(error) {
-// 	console.log(`Error: ${error}`);
-// }
-
-// function getActiveTab() {
-// 	let gettingActiveTab = browser.tabs.query({
-// 		active: true,
-// 		currentWindow: true,
-// 	});
-// 	gettingActiveTab.then((tabs) => {
-// 		console.log('tabId', tabs[0].id);
-// 	});
-// }
-
 (async () => {
-	// Var for Video Url
-	var url = [];
-
 	// receive the array from script.js
 	browser.runtime.onMessage.addListener((requestCs) => {
 		// console.log('request', request);
 		// console.log('typeofrequest', typeof request);
 
 		if (requestCs.courses_url) {
+			// Var for Video Url
+			var url = [];
+
 			// get the lenght of the array courses_url
-			// let length = requestCs.courses_url.length;
-			let length = 1;
+			let length = requestCs.courses_url.length;
+			// let length = 1;
 			var tabId;
 
 			console.log("nombre d'onglet a ouvrir ", length);
@@ -107,22 +85,21 @@
 				 * @return Video Url
 				 */
 				const ExcuteScript = new Promise((resolve, reject) => {
+					console.log('7 entree ================> ExcuteScript');
 					browser.tabs
 						.executeScript(tabId, { file: 'tabs.js' })
 						.then((results) => {
 							console.log('result ', results);
 							// return results;
-							console.log(
-								'7 entree ================> ExcuteScript',
-							);
+							url.push(results[0]);
 						})
-						.then(() => {
+						.then((results) => {
 							// on ferme la tab precedement ouverte
 							// browser.tabs.remove(tab.id);
 							console.log(
 								'8 Sortie ================> ExcuteScript',
 							);
-							resolve('tutu');
+							resolve(url);
 						})
 						.catch((error) => {
 							console.error('Failed: ' + error);
@@ -132,42 +109,25 @@
 				});
 
 				/**
-				 * Promise
-				 * @description
+				 * Promise all
+				 * @description Promise all for waiting all execution in the order
 				 */
 
 				do {
 					Promise.all([badge, createTabs, ExcuteScript]).then(
 						(values) => {
+							console.log('url', url);
+							// on ferme la tab precedement ouverte
+							//browser.tabs.remove(tabId);
+							const result = true;
+
 							console.log(
 								' 9 ================> Fin Promisa.all',
 								values,
 							);
-							// on ferme la tab precedement ouverte
-							browser.tabs.remove(tabId);
-							const result = true;
 						},
 					);
-				} while (result == true);
-
-				// const video = cresteTabs(element);
-
-				// url.push(video);
-
-				/**
-				 * Fonction Future
-				 */
-				// on ferme la tab precedement ouverte
-				// browser.tabs.remove(tab.id);
-
-				/**
-				 * Fonction Future
-				 */
-				// on telecharge la video grace a l'url récupéré
-				// browser.downloads.download({
-				// 	url: request.video_url,
-				// 	filename: 'video.mp4',
-				// });
+				} while (result === true);
 
 				// decrement de 1 the length
 				length--;
@@ -181,6 +141,21 @@
 })();
 
 /**
+ * Function donwload Video
+ * @description Function for download video from the array Url
+ * @var url -> array with all Url video
+ */
+
+function downloadVideo(url) {
+	console.log('url', url);
+
+	// browser.downloads.download({
+	// 	url: request.video_url,
+	// 	filename: 'video.mp4',
+	// });
+}
+
+/**
  * Start the script
  */
 
@@ -192,6 +167,16 @@ browser.browserAction.onClicked.addListener(onClick);
 
 function handleActivated(activeInfo) {
 	console.log('Tab ' + activeInfo.tabId + ' was activated');
+	// browser.tabs.remove(activeInfo.tabId);
+	/**
+	 * Fonction future a voir
+	 */
+	// if (!document.querySelectorAll('.entity-image').length < 0) {
+	//     browser.browserAction.setIcon({ path: 'icons/icon-48-red.png' });
+	// } else {
+	//     browser.browserAction.setIcon({ path: 'icons/icon-48.png' });
+
+	// }
 }
 
 browser.tabs.onActivated.addListener(handleActivated);

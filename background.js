@@ -137,13 +137,27 @@
  * @var url -> array with all Url video
  */
 
-function downloadVideo(url) {
-	console.log('url', url);
+ function downloadVideo(videoData) {
 
-	// browser.downloads.download({
-	// 	url: request.video_url,
-	// 	filename: 'video.mp4',
-	// });
+	for (let index = 0; index < videoData.length; index++) {
+		console.log('index => ', index);
+		// build file name
+		let videoFilename =
+			index +
+			1 +
+			'_' +
+			videoData.length +
+			'-' +
+			removeSpecialChars(videoData[index].videoTitle) +
+			'.mp4';
+
+		// Start download
+		browser.downloads.download({
+			url: videoData[0].videoUrl,
+			filename: videoFilename,
+            conflictAction : 'uniquify'
+		});
+	}
 }
 
 /**

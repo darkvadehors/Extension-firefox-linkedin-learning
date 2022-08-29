@@ -90,7 +90,7 @@
 						})
 						.then((results) => {
 							// on ferme la tab precedement ouverte
-							// browser.tabs.remove(tab.id);
+							browser.tabs.remove(tabId);
 							console.log('8 Sortie ======> ExcuteScript');
 							resolve(url);
 						})
@@ -107,18 +107,19 @@
 				 * execution in the order
 				 */
 
+                let globalResults = false;
 				do {
 					Promise.all([badge, createTabs, ExcuteScript]).then(
 						(values) => {
 							console.log('url', url);
 							// on ferme la tab precedement ouverte
 							//browser.tabs.remove(tabId);
-							const result = true;
+							globalResults = true;
 
 							console.log(' 9 ======> Fin Promisa.all', values);
 						},
 					);
-				} while (result === true);
+				} while (globalResults === true);
 
 				// decrement de 1 the length
 				length--;

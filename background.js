@@ -17,13 +17,11 @@
 			// let length = 1;
 			var tabId;
 
-			console.log("nombre d'onglet a ouvrir ", length);
+			// console.log("nombre d'onglet a ouvrir ", length);
 
-			console.log('requestCs.courses_url', requestCs.courses_url);
+			// console.log('requestCs.courses_url', requestCs.courses_url);
 
-			console.log(
-				'#############################################################',
-			);
+			// console.log('###################################################');
 			// create a new tab for each course
 			// For ...of version
 			for (const element of requestCs.courses_url) {
@@ -36,7 +34,7 @@
 				 * @var length
 				 */
 				const badge = new Promise((resolve, reject) => {
-					console.log('1 entree ================> badge');
+					console.log('1 entree ======> badge');
 					// color in red the number on Icon
 					// browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
 					browser.browserAction.setIcon({
@@ -51,27 +49,24 @@
 					} else {
 						browser.browserAction.setBadgeText({ text: '' });
 					}
-					console.log('2 Sortie ================> badge');
+					console.log('2 Sortie ======> badge');
 					resolve(true);
 				});
 
 				/**
 				 * Promise CreateTabs
-				 * @description Create a new tab with  the url in the element loop
+				 * @description Create a new tab with
+				 * the url in the element loop
 				 * @var element
 				 */
 				const createTabs = new Promise((resolve, reject) => {
 					browser.tabs.create(
 						{ url: element, active: true },
 						(tab) => {
-							console.log(
-								'3 entree ================> cresteTabs',
-							);
+							console.log('3 entree ======> cresteTabs');
 							tabId = tab.id;
 							console.log('3.1 tabId', tabId);
-							console.log(
-								'5 Sortie ================> cresteTabs',
-							);
+							console.log('5 Sortie ======> cresteTabs');
 							resolve(true);
 						},
 					);
@@ -85,7 +80,7 @@
 				 * @return Video Url
 				 */
 				const ExcuteScript = new Promise((resolve, reject) => {
-					console.log('7 entree ================> ExcuteScript');
+					console.log('7 entree ======> ExcuteScript');
 					browser.tabs
 						.executeScript(tabId, { file: 'tabs.js' })
 						.then((results) => {
@@ -96,9 +91,7 @@
 						.then((results) => {
 							// on ferme la tab precedement ouverte
 							// browser.tabs.remove(tab.id);
-							console.log(
-								'8 Sortie ================> ExcuteScript',
-							);
+							console.log('8 Sortie ======> ExcuteScript');
 							resolve(url);
 						})
 						.catch((error) => {
@@ -110,7 +103,8 @@
 
 				/**
 				 * Promise all
-				 * @description Promise all for waiting all execution in the order
+				 * @description Promise all for waiting all
+				 * execution in the order
 				 */
 
 				do {
@@ -121,10 +115,7 @@
 							//browser.tabs.remove(tabId);
 							const result = true;
 
-							console.log(
-								' 9 ================> Fin Promisa.all',
-								values,
-							);
+							console.log(' 9 ======> Fin Promisa.all', values);
 						},
 					);
 				} while (result === true);
@@ -164,6 +155,19 @@ function onClick() {
 }
 
 browser.browserAction.onClicked.addListener(onClick);
+
+function removeSpecialChars(str) {
+	return str
+		.replace(/[àâäÀÂªÆÁÄÃÅĀ]+/g, 'a') // Remplace tout les a
+		.replace(/[êéèëÉÈÊËĘĖĒ]+/gi, 'e') // Remplace tout les e
+		.replace(/[îìïÎÏÌÍĮĪ]+/gi, 'i') // Remplace tout les i
+		.replace(/[öôÔŒºÖÒÓÕØŌ]+/gi, 'o') // Remplace tout les o
+		.replace(/[ÛÙÜÚŪûüùœ]+/gi, 'u') // Remplace tout les u
+		.replace(/(?!\w|\s)./g, '') // supprimer tout caractère qui n'est pas un mot ou un espace. \w est équivalent à [A-Za-z0-9_]
+		.replace(/\s+/g, ' ') //trouver toute apparence de 1 ou plus des espaces et de la remplacer par un espace blanc simple
+		.replace(/^(\s*)([\W\w]*)(\b\s*$)/g, '$2') //couper la chaîne à supprimer tous les espaces au début ou à la fin.
+		.replace(/\s/g, '_'); // remplace tout les espace par un underscore
+}
 
 function handleActivated(activeInfo) {
 	console.log('Tab ' + activeInfo.tabId + ' was activated');

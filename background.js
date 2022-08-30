@@ -66,7 +66,7 @@
 							console.log('3 entree ======> cresteTabs');
 							tabId = tab.id;
 							console.log('3.1 tabId', tabId);
-							console.log('5 Sortie ======> cresteTabs');
+							console.log('4 Sortie ======> cresteTabs');
 							resolve(true);
 						},
 					);
@@ -80,7 +80,7 @@
 				 * @return Video Url
 				 */
 				const ExcuteScript = new Promise((resolve, reject) => {
-					console.log('7 entree ======> ExcuteScript');
+					console.log('5 entree ======> ExcuteScript');
 					browser.tabs
 						.executeScript(tabId, { file: 'tabs.js' })
 						.then((results) => {
@@ -91,7 +91,7 @@
 						.then((results) => {
 							// on ferme la tab precedement ouverte
 							browser.tabs.remove(tabId);
-							console.log('8 Sortie ======> ExcuteScript');
+							console.log('6 Sortie ======> ExcuteScript');
 							resolve(url);
 						})
 						.catch((error) => {
@@ -116,7 +116,7 @@
 							//browser.tabs.remove(tabId);
 							globalResults = true;
 
-							console.log(' 9 ======> Fin Promisa.all', values);
+							console.log(' 7 ======> Fin Promisa.all', values);
 						},
 					);
 				} while (globalResults === true);

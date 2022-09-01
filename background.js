@@ -5,126 +5,111 @@
 (async () => {
 	// receive the array from script.js
 	browser.runtime.onMessage.addListener((requestCs) => {
-		// console.log('request', request);
-		// console.log('typeofrequest', typeof request);
+		console.log('request', requestCs);
+		console.log('typeofrequest', typeof requestCs);
 
-		if (requestCs.courses_url) {
-			// Var for Video Url
-			var url = [];
+		if (!requestCs.courses_url) {
+			return;
+		} //<= End of if
 
-			// get the lenght of the array courses_url
-			let length = requestCs.courses_url.length;
-			// let length = 1;
-			var tabId;
+		// Var for Video Url
+		var url = [];
+		let i = 0;
 
-			// console.log("nombre d'onglet a ouvrir ", length);
+		// get the lenght of the array courses_url
+		let length = requestCs.courses_url.length;
+		let coursesUrl = requestCs.courses_url;
+		// let length = 1;
+		var tabId;
 
-			// console.log('requestCs.courses_url', requestCs.courses_url);
+		console.log("nombre d'onglet a ouvrir ", length);
 
-			// console.log('###################################################');
-			// create a new tab for each course
-			// For ...of version
-			for (const element of requestCs.courses_url) {
-				//badge(length);
-				// open each tabs
+		console.log('requestCs.courses_url', coursesUrl);
 
-				/**
-				 * Promise badge
-				 * @description update the icon badge with the number
-				 * @var length
-				 */
-				const badge = new Promise((resolve, reject) => {
-					console.log('1 entree ======> badge');
-					// color in red the number on Icon
-					// browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
-					browser.browserAction.setIcon({
-						path: 'icons/icon-48-red.png',
+		// console.log('###################################################');
+		// create a new tab for each course
+		// For ...of version
+		while (i < length) {
+			//badge(length);
+			// open each tabs
+            console.log("nombre d'onglet dans le while ", length, i);
+			/**
+			 * Promise badge
+			 * @description update the icon badge with the number
+			 * @var length
+			 */
+			(async ()=> await new Promise((resolve) => {
+				console.log('1 entree ======> badge tour ', i);
+				// color in red the number on Icon
+				// browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
+				browser.browserAction.setIcon({
+					path: 'icons/icon-48-red.png',
+				});
+
+				// add the number of the course and the red color to the button
+				if (length > 0) {
+					browser.browserAction.setBadgeText({
+						text: length.toString(),
+					});
+				} else {
+					browser.browserAction.setBadgeText({ text: '' });
+				}
+				console.log('2 Sortie ======> badge tour ', i);
+				resolve(true);
+			}))(); // fin promise
+
+			/**
+			 * Promise CreateTabs
+			 * @description Create a new tab with
+			 * the url in the coursesUrl
+			 * @var coursesUrl
+			 */
+			(async ()=> await new Promise((resolve) => {
+				browser.tabs.create(
+					{ url: coursesUrl[i], active: true },
+					(tab) => {
+						console.log('3 entree ======> cresteTabs tour ', i);
+						tabId = tab.id;
+						console.log('3.1 tabId', tabId);
+						console.log('4 Sortie ======> cresteTabs tour ', i);
+						resolve(true);
+					},
+				);
+			}))();
+
+			/**
+			 * Promise ExcuteScript
+			 * @description Launch JS in the new Tab
+			 * @var tab
+			 * @return Video Url
+			 */
+			(async ()=> await new Promise((resolve) => {
+				console.log('5 entree ======> ExcuteScript tour ', i);
+				browser.tabs
+					.executeScript(tabId, { file: 'tabs.js' })
+					.then((results) => {
+						console.log('result ', results);
+						// return results;
+						url.push(results[0]);
+					})
+					.then(() => {
+						// on ferme la tab precedement ouverte
+						browser.tabs.remove(tabId);
+						console.log('6 Sortie ======> ExcuteScript tour ', i,);
+						resolve(url);
+					})
+					.catch((error) => {
+						console.error('Failed: ' + error);
 					});
 
-					// add the number of the course and the red color to the button
-					if (length > 0) {
-						browser.browserAction.setBadgeText({
-							text: length.toString(),
-						});
-					} else {
-						browser.browserAction.setBadgeText({ text: '' });
-					}
-					console.log('2 Sortie ======> badge');
-					resolve(true);
-				});
+				console.log('Sortie cresteTabs', url);
+			}))();
 
-				/**
-				 * Promise CreateTabs
-				 * @description Create a new tab with
-				 * the url in the element loop
-				 * @var element
-				 */
-				const createTabs = new Promise((resolve, reject) => {
-					browser.tabs.create(
-						{ url: element, active: true },
-						(tab) => {
-							console.log('3 entree ======> cresteTabs');
-							tabId = tab.id;
-							console.log('3.1 tabId', tabId);
-							console.log('4 Sortie ======> cresteTabs');
-							resolve(true);
-						},
-					);
-				});
 
-				/**
-				 * Promise ExcuteScript
-				 * @description Launch JS in the new Tab
-				 * @var element
-				 * @var tab
-				 * @return Video Url
-				 */
-				const ExcuteScript = new Promise((resolve, reject) => {
-					console.log('5 entree ======> ExcuteScript');
-					browser.tabs
-						.executeScript(tabId, { file: 'tabs.js' })
-						.then((results) => {
-							console.log('result ', results);
-							// return results;
-							url.push(results[0]);
-						})
-						.then((results) => {
-							// on ferme la tab precedement ouverte
-							browser.tabs.remove(tabId);
-							console.log('6 Sortie ======> ExcuteScript');
-							resolve(url);
-						})
-						.catch((error) => {
-							console.error('Failed: ' + error);
-						});
+			// decrement de 1 the length
+            i++;
 
-					// console.log('Sortie cresteTabs');
-				});
-
-				/**
-				 * Promise all
-				 * @description Promise all for waiting all
-				 * execution in the order
-				 */
-
-                let globalResults = false;
-				do {
-					Promise.all([badge, createTabs, ExcuteScript]).then(
-						(values) => {
-							console.log('url', url);
-							// on ferme la tab precedement ouverte
-							//browser.tabs.remove(tabId);
-							globalResults = true;
-
-							console.log(' 7 ======> Fin Promisa.all', values);
-						},
-					);
-				} while (globalResults === true);
-
-				// decrement de 1 the length
-				length--;
-			} //<= End of For
-		} //<= End of if
+		} //<= End of while
 
 		// cleaning icon
 		browser.browserAction.setIcon({ path: 'icons/icon-48.png' });
@@ -138,8 +123,7 @@
  * @var url -> array with all Url video
  */
 
- function downloadVideo(videoData) {
-
+function downloadVideo(videoData) {
 	for (let index = 0; index < videoData.length; index++) {
 		console.log('index => ', index);
 		// build file name
@@ -156,7 +140,7 @@
 		browser.downloads.download({
 			url: videoData[0].videoUrl,
 			filename: videoFilename,
-            conflictAction : 'uniquify'
+			conflictAction: 'uniquify',
 		});
 	}
 }

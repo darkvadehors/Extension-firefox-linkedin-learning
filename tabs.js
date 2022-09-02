@@ -1,12 +1,12 @@
 /** @format */
 'use strict';
-(() => {
+(async() => {
 
 	console.log('Entre dans tabs.js');
 
     // retarder l'execution de la fonction
 
-        const result = new Promise((resolve, reject) => {
+        const result = await new Promise((resolve, reject) => {
             setTimeout(() => {
                 // get the url of the video course
                 const videoObject = document.querySelectorAll('video.vjs-tech');

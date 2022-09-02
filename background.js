@@ -64,8 +64,7 @@
 			 * the url in the coursesUrl
 			 * @var coursesUrl
 			 */
-			(async ()=> await new Promise((resolve) => {
-				browser.tabs.create(
+			(async ()=> await browser.tabs.create(
 					{ url: coursesUrl[i], active: true },
 					(tab) => {
 						console.log('3 entree ======> cresteTabs tour ', i);
@@ -74,8 +73,8 @@
 						console.log('4 Sortie ======> cresteTabs tour ', i);
 						resolve(true);
 					},
-				);
-			}))();
+				)
+			)();
 
 			/**
 			 * Promise ExcuteScript
@@ -83,27 +82,25 @@
 			 * @var tab
 			 * @return Video Url
 			 */
-			(async ()=> await new Promise((resolve) => {
-				console.log('5 entree ======> ExcuteScript tour ', i);
-				browser.tabs
+			(async ()=> await browser.tabs
 					.executeScript(tabId, { file: 'tabs.js' })
-					.then((results) => {
-						console.log('result ', results);
+					.then(async (results) => {
+						console.log('tabId ', tabId);
 						// return results;
 						url.push(results[0]);
+                        return await results;
 					})
 					.then(() => {
 						// on ferme la tab precedement ouverte
-						browser.tabs.remove(tabId);
+						//browser.tabs.remove(tabId);
+                        console.log('result ', results);
 						console.log('6 Sortie ======> ExcuteScript tour ', i,);
-						resolve(url);
+
 					})
 					.catch((error) => {
 						console.error('Failed: ' + error);
-					});
-
-				console.log('Sortie cresteTabs', url);
-			}))();
+					})
+			)();
 
 
 			// decrement de 1 the length

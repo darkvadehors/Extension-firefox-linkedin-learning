@@ -19,44 +19,28 @@
 		// get the lenght of the array courses_url
 		let length = requestCs.courses_url.length;
 		let coursesUrl = requestCs.courses_url;
-		// let length = 1;
+
 		var tabId;
 
 		console.log("nombre d'onglet a ouvrir ", length);
 
 		console.log('requestCs.courses_url', coursesUrl);
 
-		// console.log('###################################################');
-		// create a new tab for each course
-		// For ...of version
 		while (i < length) {
 			//badge(length);
 			// open each tabs
-            console.log("nombre d'onglet dans le while ", length, i);
+			console.log("nombre de tour ", i);
 			/**
 			 * Promise badge
 			 * @description update the icon badge with the number
 			 * @var length
 			 */
-			(async ()=> await new Promise((resolve) => {
-				console.log('1 entree ======> badge tour ', i);
-				// color in red the number on Icon
-				// browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
-				browser.browserAction.setIcon({
+			console.log('1 entree ======> badge tour ', i);
+			(async () =>
+				await browser.browserAction.setIcon({
 					path: 'icons/icon-48-red.png',
-				});
-
-				// add the number of the course and the red color to the button
-				if (length > 0) {
-					browser.browserAction.setBadgeText({
-						text: length.toString(),
-					});
-				} else {
-					browser.browserAction.setBadgeText({ text: '' });
-				}
-				console.log('2 Sortie ======> badge tour ', i);
-				resolve(true);
-			}))(); // fin promise
+				}))();
+			console.log('2 sortie ======> badge tour ', i);
 
 			/**
 			 * Promise CreateTabs
@@ -64,17 +48,17 @@
 			 * the url in the coursesUrl
 			 * @var coursesUrl
 			 */
-			(async ()=> await browser.tabs.create(
+			console.log('3 entree ======> cresteTabs tour ', i);
+			(async () =>
+				await browser.tabs.create(
 					{ url: coursesUrl[i], active: true },
 					(tab) => {
-						console.log('3 entree ======> cresteTabs tour ', i);
 						tabId = tab.id;
-						console.log('3.1 tabId', tabId);
-						console.log('4 Sortie ======> cresteTabs tour ', i);
-						resolve(true);
+                        console.log('3.1 tabId', tab);
+
 					},
-				)
-			)();
+				))();
+			console.log('4 Sortie ======> cresteTabs tour ', i);
 
 			/**
 			 * Promise ExcuteScript
@@ -82,36 +66,40 @@
 			 * @var tab
 			 * @return Video Url
 			 */
-			(async ()=> await browser.tabs
+             console.log('5 Entrée ======> ExcuteScript tour ', i);
+			(async () =>
+				await browser.tabs
 					.executeScript(tabId, { file: 'tabs.js' })
 					.then(async (results) => {
-						console.log('tabId ', tabId);
+						console.log('5.1 tabId ', tabId);
 						// return results;
 						url.push(results[0]);
-                        return await results;
+						return await results;
+					})
+					.then(async () => {
+						await browser.browserAction.setIcon({
+							path: 'icons/icon-48.png',
+						});
 					})
 					.then(() => {
 						// on ferme la tab precedement ouverte
-						//browser.tabs.remove(tabId);
-                        console.log('result ', results);
-						console.log('6 Sortie ======> ExcuteScript tour ', i,);
+						browser.tabs.remove(tabId);
+						// cleaning icon
 
+						//browser.browserAction.setBadgeText({ text: '' });
+						console.log('result url ', url[0].videoUrl);
+					})
+					.then(() => {
+						console.log('6 Sortie ======> ExcuteScript tour ', i);
 					})
 					.catch((error) => {
 						console.error('Failed: ' + error);
-					})
-			)();
+					}))();
 
-
-			// decrement de 1 the length
-            i++;
-
+			// increment +1 for loop
+			i++;
 		} //<= End of while
-
-		// cleaning icon
-		browser.browserAction.setIcon({ path: 'icons/icon-48.png' });
-		browser.browserAction.setBadgeText({ text: '' });
-	});
+	}); // End onMessage
 })();
 
 /**
@@ -179,4 +167,4 @@ function handleActivated(activeInfo) {
 	// }
 }
 
-browser.tabs.onActivated.addListener(handleActivated);
+//browser.tabs.onActivated.addListener(handleActivated);

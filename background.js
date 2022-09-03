@@ -52,8 +52,8 @@
 			(async () =>
 				await browser.tabs.create(
 					{ url: coursesUrl[i], active: true },
-					(tab) => {
-						tabId = tab.id;
+					async (tab) => {
+						tabId = await tab.id;
                         console.log('3.1 tabId', tab);
 
 					},

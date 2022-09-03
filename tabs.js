@@ -22,9 +22,9 @@
 
                 // send array to background.js
                 resolve(videoData);
-            }, 1000);
+            }, 2000);
         }
         );
-        return result;
+        return await result;
 
 })();

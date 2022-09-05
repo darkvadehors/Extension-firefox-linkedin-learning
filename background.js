@@ -20,58 +20,35 @@
 		let length = requestCs.courses_url.length;
 		let coursesUrl = requestCs.courses_url;
 
-		var tabId;
+		var tabId  =[];
 
 		console.log("nombre d'onglet a ouvrir ", length);
 
 		console.log('requestCs.courses_url', coursesUrl);
 
-		while (i < length) {
+		coursesUrl.forEach(element => {
+
+
 			//badge(length);
 			// open each tabs
-			console.log("nombre de tour ", i);
+			console.log("nombre de tour ", element);
 			/**
 			 * Promise badge
 			 * @description update the icon badge with the number
 			 * @var length
 			 */
 			console.log('1 entree ======> badge tour ', i);
-			(async () =>
-				await browser.browserAction.setIcon({
-					path: 'icons/icon-48-red.png',
-				}))();
-			console.log('2 sortie ======> badge tour ', i);
 
-			/**
-			 * Promise CreateTabs
-			 * @description Create a new tab with
-			 * the url in the coursesUrl
-			 * @var coursesUrl
-			 */
-			console.log('3 entree ======> cresteTabs tour ', i);
 			(async () =>
 				await browser.tabs.create(
-					{ url: coursesUrl[i], active: true },
+					{ url: element, active: true },
 					async (tab) => {
-						tabId = await tab.id;
-                        console.log('3.1 tabId', tab);
-
-					},
-				))();
-			console.log('4 Sortie ======> cresteTabs tour ', i);
-
-			/**
-			 * Promise ExcuteScript
-			 * @description Launch JS in the new Tab
-			 * @var tab
-			 * @return Video Url
-			 */
-             console.log('5 Entrée ======> ExcuteScript tour ', i);
-			(async () =>
-				await browser.tabs
-					.executeScript(tabId, { file: 'tabs.js' })
+						tabId.push(await tab.id);
+                        console.log('3.1 tabId - ', tab);
+                        await browser.tabs
+					.executeScript(tabId[tabId.length -1], { file: 'tabs.js' })
 					.then(async (results) => {
-						console.log('5.1 tabId ', tabId);
+						console.log('5.1 tabId - ', tabId.length -1);
 						// return results;
 						url.push(results[0]);
 						return await results;
@@ -91,15 +68,17 @@
 					})
 					.then(() => {
 						console.log('6 Sortie ======> ExcuteScript tour ', i);
+
 					})
 					.catch((error) => {
 						console.error('Failed: ' + error);
-					}))();
+					})
 
-			// increment +1 for loop
-			i++;
-		} //<= End of while
+					},
+				))();
+
 	}); // End onMessage
+});
 })();
 
 /**

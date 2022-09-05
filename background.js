@@ -48,7 +48,7 @@
                         await browser.tabs
 					.executeScript(tabId[tabId.length -1], { file: 'tabs.js' })
 					.then(async (results) => {
-						console.log('5.1 tabId - ', tabId.length -1);
+						console.log('5.1 tabId - ', tabId[tabId.length -1]);
 						// return results;
 						url.push(results[0]);
 						return await results;

@@ -20,18 +20,16 @@
 		let length = requestCs.courses_url.length;
 		let coursesUrl = requestCs.courses_url;
 
-		var tabId  =[];
+		//var tabId  =[];
 
 		console.log("nombre d'onglet a ouvrir ", length);
 
 		console.log('requestCs.courses_url', coursesUrl);
 
-		coursesUrl.forEach(element => {
-
-
+		while (i < length) {
 			//badge(length);
 			// open each tabs
-			console.log("nombre de tour ", element);
+			console.log('nombre de tour ', i);
 			/**
 			 * Promise badge
 			 * @description update the icon badge with the number
@@ -41,44 +39,58 @@
 
 			(async () =>
 				await browser.tabs.create(
-					{ url: element, active: true },
+					{ url: coursesUrl[i], active: true },
 					async (tab) => {
-						tabId.push(await tab.id);
-                        console.log('3.1 tabId - ', tab);
-                        await browser.tabs
-					.executeScript(tabId[tabId.length -1], { file: 'tabs.js' })
-					.then(async (results) => {
-						console.log('5.1 tabId - ', tabId[tabId.length -1]);
-						// return results;
-						url.push(results[0]);
-						return await results;
-					})
-					.then(async () => {
-						await browser.browserAction.setIcon({
-							path: 'icons/icon-48.png',
-						});
-					})
-					.then(() => {
-						// on ferme la tab precedement ouverte
-						browser.tabs.remove(tabId);
-						// cleaning icon
+						const tabId = tab.id;
 
-						//browser.browserAction.setBadgeText({ text: '' });
-						console.log('result url ', url[0].videoUrl);
-					})
-					.then(() => {
-						console.log('6 Sortie ======> ExcuteScript tour ', i);
+						console.log('3.1 tabId', tabId);
 
-					})
-					.catch((error) => {
-						console.error('Failed: ' + error);
-					})
+						/**
+						 * idée ??
+						 * si on met un setinterval tant que l'url est vide ?
+						 */
+						await browser.tabs
+							.executeScript(tabId, { file: 'tabs.js' })
+							.then(async (results) => {
+								console.log(
+									'5.1 tabId - ',
+									tabId,
+									'Url => ',
+									results[0],
+								);
+								// return results;
+								url.push(results[0]);
+								i++;
+								return await results;
+							})
+							// 				.then(async () => {
+							// 					await browser.browserAction.setIcon({
+							// 						path: 'icons/icon-48.png',
+							// 					});
+							// 				})
+							.then(() => {
+								// on ferme la tab precedement ouverte
+								browser.tabs.remove(tabId);
+								// cleaning icon
 
+								//browser.browserAction.setBadgeText({ text: '' });
+								console.log('result url ', url);
+							})
+							// 				.then(() => {
+							// 					console.log(
+							// 						'6 Sortie ======> ExcuteScript tour ',
+							// 						i,
+							// 					);
+							// 				})
+							.catch((error) => {
+								console.error('Failed: ' + error);
+							});
 					},
-				))();
-
-	}); // End onMessage
-});
+				)
+                )();
+			i++;
+		}
+	});
 })();
 
 /**

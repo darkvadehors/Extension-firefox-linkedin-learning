@@ -33,6 +33,7 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 
 	// using `while` loop
 	while (i < arrayLength) {
+		badge(i + 1);
 		// 1st promise
 		await new Promise((resolve) => {
 			browser.tabs.create(
@@ -51,7 +52,6 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 				.then(async (results) => {
 					if (results) {
 						url.push(results);
-						badge(url.length);
 						browser.tabs.remove(tabId);
 					}
 					// return results;
@@ -111,7 +111,13 @@ const downloadVideo = (videoData) => {
 		badge();
 	});
 };
+/*
+                while (tabCount < MAX_TABS && bookmarks.length > 0) {
+                    loadBookmark();
+                }
 
+
+*/
 /**
  * Promise badge
  * @description update the icon badge with the number
@@ -165,6 +171,7 @@ linkedinLearningVideoDownloader();
  */
 
 function onClick() {
+	badge();
 	chrome.tabs.executeScript({ file: 'script.js' });
 }
 

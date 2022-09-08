@@ -51,6 +51,7 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 				.then(async (results) => {
 					if (results) {
 						url.push(results);
+						badge(url.length);
 						browser.tabs.remove(tabId);
 					}
 					// return results;
@@ -67,7 +68,7 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 /**
  * Function donwload Video
  * @description Function for download video from the array Url
- * @var url -> array with all Url video
+ * @var url: array with all Url video
  */
 
 const downloadVideo = (videoData) => {
@@ -107,9 +108,41 @@ const downloadVideo = (videoData) => {
 			conflictAction: 'uniquify',
 			saveAs: false,
 		});
+		badge();
 	});
 };
 
+/**
+ * Promise badge
+ * @description update the icon badge with the number
+ * @var nbr: number to display
+ */
+const badge = (nbr = 0) => {
+	// color in red the number on Icon
+	// browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
+	browser.browserAction.setIcon({
+		path: 'icons/icon-48-red.png',
+	});
+
+	// add the number of the course and the red color to the button
+	if (nbr > 0) {
+		browser.browserAction.setBadgeText({
+			text: nbr.toString(),
+		});
+	} else {
+		browser.browserAction.setBadgeText({ text: '' });
+		browser.browserAction.setIcon({
+			path: 'icons/icon-48.png',
+		});
+	}
+	// resolve('badge OK');
+};
+
+/**
+ * Function removeSpecialChar
+ * @description cleaning sting
+ * @var str: string to cleaning
+ */
 const removeSpecialChars = async (str) => {
 	return str
 		.replace(/[àâäÀÂªÆÁÄÃÅĀ]+/g, 'a') // Remplace tout les a

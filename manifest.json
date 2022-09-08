@@ -10,10 +10,13 @@
     },
 
     "permissions": [
-        "<all_urls>",
+        "*://www.linkedin.com/learning/*",
         "activeTab",
         "tabs",
-        "downloads"
+        "downloads",
+        "storage",
+        "unlimitedStorage"
+
     ],
 
     "browser_action": {

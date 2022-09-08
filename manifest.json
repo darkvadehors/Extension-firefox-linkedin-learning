@@ -10,10 +10,13 @@
     },
 
     "permissions": [
-        "*://www.linkedin.com/*",
+        "*://www.linkedin.com/learning/*",
         "activeTab",
         "tabs",
-        "downloads"
+        "downloads",
+        "storage",
+        "unlimitedStorage"
+
     ],
 
     "browser_action": {

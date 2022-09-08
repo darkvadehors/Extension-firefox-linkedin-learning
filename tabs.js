@@ -2,14 +2,10 @@
 'use strict';
 (async () => {
 
-	let timer = Math.floor(Math.random() * (15000 - 3000) + 3000);
+	let timer = Math.floor(Math.random() * (4000 - 3000) + 3000);
 	let minuter = parseInt(timer / 1000);
 
-	// countdown before closing
-	setInterval(async () => {
-		document.title = 'Close in ' + minuter + ' sec.';
-		minuter--;
-	}, 1000);
+
 	var videoData;
 
 	await new Promise(async (resolve) => {
@@ -34,6 +30,10 @@
 			resolve(1);
 		}, timer); // change the setTimeout  whith random value
 	});
-
+	// countdown before closing
+	setInterval(async () => {
+		document.title = 'Close in ' + minuter + ' sec.';
+		minuter--;
+	}, 1000);
 	return videoData;
 })();

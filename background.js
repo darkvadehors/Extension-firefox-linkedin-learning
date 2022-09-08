@@ -62,7 +62,7 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 		i++;
 	}
 	// download Video
-	downloadVideo(url);
+	downloadManager(url);
 };
 
 /**
@@ -70,54 +70,76 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
  * @description Function for download video from the array Url
  * @var url: array with all Url video
  */
+/**
+ * on a un array qui contient une liste d'object a telecharger
+ * il faut un compteur de DL max
+ * il faut prendre les element de la liste un par un  et les supprimers au fur et a mesure qu'on les prends
+ * pour les telecharger si le max n'est pas atteind
+ *
+ */
 
-const downloadVideo = (videoData) => {
-	let arrayLenght = videoData.length;
+/**
+ * Function downloadManager
+ * @description send to downloadVideo the good Url
+ * @var videoData
+ */
+const downloadManager = (videoData) => {
+	// set variable
+	const maxDl = 3;
+	let arraylength = videoData.length;
+	let dlCount = 0;
 
+    while (arraylength > 0 && dlCount <= maxDl) {
+        dlCount++;
+        console.log('videoData 1 :>> ', videoData);
+        downloadVideo(videoData[0]);
+        console.log('videoData 2 :>> ', videoData);
+        videoData.shift();
+        arraylength = videoData.length;
+
+    }
+};
+
+const downloadVideo = (arrayLength) => {
 	// add O before if inf 10
-	if (arrayLenght <= 9) {
-		arrayLenght = '0' + arrayLenght;
+	if (arrayLength <= 9) {
+		arrayLength = '0' + arrayLength;
 	}
 
-	videoData.forEach(async (element, index) => {
-		let name = await removeSpecialChars(element[0].videoTitle);
-		let formation = await removeSpecialChars(element[0].formationTilte);
-		let videoNbr = index + 1;
+    console.log("download" ,arrayLength );
+	// videoData.forEach(async (element, index) => {
+	// 	let name = await removeSpecialChars(element[0].videoTitle);
+	// 	let formation = await removeSpecialChars(element[0].formationTilte);
+	// 	let videoNbr = index + 1;
 
-		// add O before if inf 10
-		if (videoNbr <= 9) {
-			videoNbr = '0' + videoNbr;
-		}
+	// 	// add O before if inf 10
+	// 	if (videoNbr <= 9) {
+	// 		videoNbr = '0' + videoNbr;
+	// 	}
 
-		const videoFileName =
-			'Linkedin-Learning/' +
-			formation +
-			'/' +
-			videoNbr +
-			'_' +
-			arrayLenght +
-			'-' +
-			// cleaning title
-			name +
-			'.mp4';
+	// 	const videoFileName =
+	// 		'Linkedin-Learning/' +
+	// 		formation +
+	// 		'/' +
+	// 		videoNbr +
+	// 		'_' +
+	// 		arrayLength +
+	// 		'-' +
+	// 		// cleaning title
+	// 		name +
+	// 		'.mp4';
 
-		// Start download
-		browser.downloads.download({
-			url: element[0].videoUrl,
-			filename: videoFileName,
-			conflictAction: 'uniquify',
-			saveAs: false,
-		});
-		badge();
-	});
+	// 	// Start download
+	// 	browser.downloads.download({
+	// 		url: element[0].videoUrl,
+	// 		filename: videoFileName,
+	// 		conflictAction: 'uniquify',
+	// 		saveAs: false,
+	// 	});
+	// 	badge();
+	// });
 };
-/*
-                while (tabCount < MAX_TABS && bookmarks.length > 0) {
-                    loadBookmark();
-                }
 
-
-*/
 /**
  * Promise badge
  * @description update the icon badge with the number

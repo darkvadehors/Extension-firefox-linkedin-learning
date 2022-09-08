@@ -2,7 +2,7 @@
 'use strict';
 (async () => {
 
-	let timer = Math.floor(Math.random() * (7000 - 2000) + 2000);
+	let timer = Math.floor(Math.random() * (15000 - 3000) + 3000);
 	let minuter = parseInt(timer / 1000);
 
 	// countdown before closing

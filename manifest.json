@@ -16,7 +16,6 @@
         "downloads",
         "storage",
         "unlimitedStorage"
-
     ],
 
     "browser_action": {

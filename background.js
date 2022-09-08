@@ -3,7 +3,7 @@
 const linkedinLearningVideoDownloader = async () => {
 	// receive the array from script.js
 	browser.runtime.onMessage.addListener((requestCs) => {
-		console.log('requestCs :>> ', requestCs.courses_url.length);
+		console.info('Nbr of Video :>> ', requestCs.courses_url.length);
 
 		if (!requestCs.courses_url) {
 			return;
@@ -71,25 +71,41 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
  */
 
 const downloadVideo = (videoData) => {
+	let arrayLenght = videoData.length;
+
+	// add O before if inf 10
+	if (arrayLenght <= 9) {
+		arrayLenght = '0' + arrayLenght;
+	}
+
 	videoData.forEach(async (element, index) => {
 		let name = await removeSpecialChars(element[0].videoTitle);
+		let formation = await removeSpecialChars(element[0].formationTilte);
+		let videoNbr = index + 1;
+
+		// add O before if inf 10
+		if (videoNbr <= 9) {
+			videoNbr = '0' + videoNbr;
+		}
+
 		const videoFileName =
-			index +
-			1 +
+			'Linkedin-Learning/' +
+			formation +
+			'/' +
+			videoNbr +
 			'_' +
-			videoData.length +
+			arrayLenght +
 			'-' +
 			// cleaning title
 			name +
 			'.mp4';
 
-		console.log('videoFileName :>> ', videoFileName.valueOf());
 		// Start download
 		browser.downloads.download({
 			url: element[0].videoUrl,
 			filename: videoFileName,
 			conflictAction: 'uniquify',
-            saveAs: true
+			saveAs: false,
 		});
 	});
 };
@@ -120,19 +136,3 @@ function onClick() {
 }
 
 browser.browserAction.onClicked.addListener(onClick);
-
-// function handleActivated(activeInfo) {
-// 	console.log('Tab ' + activeInfo.tabId + ' was activated');
-// browser.tabs.remove(activeInfo.tabId);
-/**
- * Fonction future a voir
- */
-// if (!document.querySelectorAll('.entity-image').length < 0) {
-//     browser.browserAction.setIcon({ path: 'icons/icon-48-red.png' });
-// } else {
-//     browser.browserAction.setIcon({ path: 'icons/icon-48.png' });
-
-// }
-// }
-
-//browser.tabs.onActivated.addListener(handleActivated);

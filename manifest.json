@@ -10,7 +10,7 @@
     },
 
     "permissions": [
-        "*://www.linkedin.com/learning/*",
+        "*://*.linkedin.com/learning/*",
         "activeTab",
         "tabs",
         "downloads",

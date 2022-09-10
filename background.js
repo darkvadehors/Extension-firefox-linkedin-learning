@@ -104,6 +104,12 @@ const downloadManager = (videoData) => {
       });
 
       function handleCreated(item) {
+        // affiche l'url des telechargememnnt
+        /**
+         * donc mettre dans un tableau les telechargemenbt au
+         * fur et a mesure puis les enlever quand ils sont fini
+         */
+
         console.log("dl en cours ",item.url);
       }
 

@@ -1,7 +1,7 @@
 /** @format */
 'use strict';
 (async () => {
-	let timer = Math.floor(Math.random() * (4000 - 3000) + 3000);
+	let timer = Math.floor(Math.random() * (10000 - 3000) + 3000);
 	let minuter = parseInt(timer / 1000);
 
 	var videoData;
@@ -28,7 +28,7 @@
 			setTimeout(() => {
 				resolve(timerBeforeClose());
 			}, timer);
-		}, 2000); // change the setTimeout whith random value
+		}, 1000); // change the setTimeout whith random value
 	});
 
 	function timerBeforeClose() {

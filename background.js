@@ -24,6 +24,9 @@ const linkedinLearningVideoDownloader = async () => {
 	});
 };
 
+/**
+ *
+ */
 const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 	// custom Variable
 	let arrayLength = coursesUrl.length;
@@ -84,60 +87,89 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
  * @var videoData
  */
 const downloadManager = (videoData) => {
+
+
+    console.log('downloadManager - videoData :>> ', videoData);
+
 	// set variable
 	const maxDl = 3;
-	let arraylength = videoData.length;
+	let nbrOfVideoToDownload = videoData.length;
+    console.log('nbrOfVideoToDownload 1 :>> ', nbrOfVideoToDownload);
 	let dlCount = 0;
 
-    while (arraylength > 0 && dlCount <= maxDl) {
-        dlCount++;
-        console.log('videoData 1 :>> ', videoData);
-        downloadVideo(videoData[0]);
-        console.log('videoData 2 :>> ', videoData);
-        videoData.shift();
-        arraylength = videoData.length;
+    // charge la liste des tlélchargement
+    let searching = browser.downloads.search({
+        limit: 3,
+        orderBy: ["-startTime"]
+      });
 
-    }
+      function handleCreated(item) {
+        console.log("dl en cours ",item.url);
+      }
+
+      browser.downloads.onCreated.addListener(handleCreated);
+
+
+
+
+
+
+
+      videoData.forEach(element => {
+            console.log('element 1 :>> ', element);
+            // Si element est plus petit que maxDl alors on charge une autre video sinon on attend
+            console.log('nbrOfVideoToDownload 2 :>> ', nbrOfVideoToDownload);
+            while (nbrOfVideoToDownload > 0 ) {
+                console.log(" --------------------------- ");
+                downloadVideo(videoData[0]);
+                videoData.shift();
+                nbrOfVideoToDownload--;
+                badge(nbrOfVideoToDownload)
+            }
+        });
+
 };
 
-const downloadVideo = (arrayLength) => {
+const downloadVideo = (videoData) => {
 	// add O before if inf 10
-	if (arrayLength <= 9) {
-		arrayLength = '0' + arrayLength;
+	if (videoData[0].id <= 9) {
+		videoData[0].id = '0' + videoData[0].id;
 	}
 
-    console.log("download" ,arrayLength );
-	// videoData.forEach(async (element, index) => {
-	// 	let name = await removeSpecialChars(element[0].videoTitle);
-	// 	let formation = await removeSpecialChars(element[0].formationTilte);
-	// 	let videoNbr = index + 1;
+    console.log("download" ,videoData );
+	videoData.forEach(async (element, index) => {
+        console.log('element :>> ', element, index);
+		let name = await removeSpecialChars(element.videoTitle);
+		let formation = await removeSpecialChars(element.formationTilte);
+		let videoNbr = index + 1;
 
-	// 	// add O before if inf 10
-	// 	if (videoNbr <= 9) {
-	// 		videoNbr = '0' + videoNbr;
-	// 	}
+		// add O before if inf 10
+		if (videoNbr <= 9) {
+			videoNbr = '0' + videoNbr;
+		}
 
-	// 	const videoFileName =
-	// 		'Linkedin-Learning/' +
-	// 		formation +
-	// 		'/' +
-	// 		videoNbr +
-	// 		'_' +
-	// 		arrayLength +
-	// 		'-' +
-	// 		// cleaning title
-	// 		name +
-	// 		'.mp4';
+		const videoFileName =
+			'Linkedin-Learning/' +
+			formation +
+			'/' +
+			videoNbr +
+			'_' +
+			index +
+			'-' +
+			// cleaning title
+			name +
+			'.mp4';
 
-	// 	// Start download
-	// 	browser.downloads.download({
-	// 		url: element[0].videoUrl,
-	// 		filename: videoFileName,
-	// 		conflictAction: 'uniquify',
-	// 		saveAs: false,
-	// 	});
-	// 	badge();
-	// });
+		// Start download
+		browser.downloads.download({
+			// url: element.videoUrl,
+            url: "https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/debian-11.4.0-amd64-DVD-1.iso",
+			filename: videoFileName,
+			conflictAction: 'uniquify',
+			saveAs: false,
+		});
+		badge();
+	});
 };
 
 /**

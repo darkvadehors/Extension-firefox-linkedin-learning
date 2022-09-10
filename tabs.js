@@ -1,23 +1,21 @@
 /** @format */
 'use strict';
 (async () => {
-
 	let timer = Math.floor(Math.random() * (4000 - 3000) + 3000);
 	let minuter = parseInt(timer / 1000);
-
 
 	var videoData;
 
 	await new Promise(async (resolve) => {
+		console.log('dans tab');
 		// document title
-		document.title = 'Do not touch !';
+		// document.title = 'Do not touch !';
 		setTimeout(() => {
+			console.log('dans tab dans settime');
 			// get the url of the video course
 			const videoObject = document.querySelectorAll('video.vjs-tech');
-			const formationTitle = document.querySelectorAll(
-				'div.classroom-nav__details > h1',
-			);
-
+			const formationTitle = document.querySelectorAll('div.classroom-nav__details > h1');
+            timerBeforeClose();
 			// declare videoData Object
 			videoData = {
 				formationTilte: formationTitle[0].innerText,
@@ -27,13 +25,18 @@
 			};
 
 			// send array to background.js
-			resolve(1);
-		}, timer); // change the setTimeout  whith random value
+			setTimeout(() => {
+				resolve(timerBeforeClose());
+			}, timer);
+		}, 2000); // change the setTimeout whith random value
 	});
-	// countdown before closing
-	setInterval(async () => {
-		document.title = 'Close in ' + minuter + ' sec.';
-		minuter--;
-	}, 1000);
+
+	function timerBeforeClose() {
+		setInterval(async () => {
+			document.title = 'Close in ' + minuter + ' sec.';
+			minuter--;
+		}, 1000);
+	}
+
 	return videoData;
 })();

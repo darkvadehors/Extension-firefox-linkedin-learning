@@ -1,8 +1,8 @@
 /** @format */
 'use strict';
 (async () => {
-	let timer = Math.floor(Math.random() * (10000 - 3000) + 3000);
-	let minuter = parseInt(timer / 1000);
+	let timer = Math.floor(Math.random() * (14000 - 3000) + 3000);
+	let minuter = parseInt((timer - 1000) / 1000);
 
 	var videoData;
 
@@ -33,10 +33,12 @@
 
 	function timerBeforeClose() {
 		setInterval(async () => {
-			document.title = 'Close in ' + minuter + ' sec.';
+			document.title = 'Close in ' + (minuter + 1) + ' sec.';
 			minuter--;
 		}, 1000);
 	}
 
 	return videoData;
 })();
+
+

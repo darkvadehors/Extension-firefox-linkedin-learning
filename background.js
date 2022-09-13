@@ -84,10 +84,10 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 		resolve(1);
 	});
 
-	const promise2 = await new Promise((resolve) => {
+	const promise2 = await new Promise(async(resolve) => {
 		// download Video
 		console.log('videoDataObject avant DLManager :>> ', videoDataObject);
-		downloadManager(videoDataObject);
+		await downloadManager(videoDataObject);
 		resolve(2);
 	});
 
@@ -101,10 +101,10 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
  * @description send to downloadVideo the good Url
  * @var videoDataObject
  */
-const downloadManager = (videoDataObject) => {
+const downloadManager =async (videoDataObject) => {
 	console.log('videoDataObject :>> ', videoDataObject);
 	// set variable
-	const maxDl = 1;
+	const maxDl = 2;
 	downloading = 0;
 
 	console.log('videoDataObject.length :>> ', videoDataObject.length);

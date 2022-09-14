@@ -3,7 +3,7 @@
 const linkedinLearningVideoDownloader = async () => {
 	// receive the array from script.js
 	browser.runtime.onMessage.addListener((requestCs) => {
-		console.info('Nbr of Video :>> ', requestCs.courses_url.length);
+		console.info('LL-VideoDl-Video in course :', requestCs.courses_url.length);
 
 		if (!requestCs.courses_url) {
 			return;
@@ -70,7 +70,7 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 			// 2th promise will resolve after the 1st promise
 			await new Promise((resolve) => {
 				browser.tabs.executeScript(tabId, { file: 'tabs.js' }).then(async (results) => {
-					console.debug(`Results video N°${i + 1}-${results[0].videoUrl}`);
+					// console.debug(`Results video N°${i + 1}-${results[0].videoUrl}`);
 
 					if (results[0] !== 'Error') {
 						// set index in results

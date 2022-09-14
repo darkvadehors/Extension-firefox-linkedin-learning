@@ -1,11 +1,11 @@
 /** @format */
 
 // check if linkendin
-if (window.location.href.indexOf('www.linkedin.com/learning/') > -1) {
-	document.body.style.border = '5px solid green';
-} else {
-	document.body.style.border = '5px solid red';
-}
+// if (window.location.href.indexOf('www.linkedin.com/learning/') > -1) {
+// 	document.body.style.border = '5px solid green';
+// } else {
+// 	document.body.style.border = '5px solid red';
+// }
 
 function video_courses_url() {
 	// new array for future urls

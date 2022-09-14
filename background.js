@@ -70,11 +70,19 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 			// 2th promise will resolve after the 1st promise
 			await new Promise((resolve) => {
 				browser.tabs.executeScript(tabId, { file: 'tabs.js' }).then(async (results) => {
-					if (results) {
+					console.debug(`Results video N°${i + 1}-${results[0].videoUrl}`);
+
+					if (results[0] !== 'Error') {
 						// set index in results
 						results[0].index = i + 1;
 						videoDataObject.push(results);
 						browser.tabs.remove(tabId);
+						resolve(2);
+					} else {
+						browser.tabs.remove(tabId);
+						console.debug(`Error in Open Tabs Id:${tabId}`);
+						i--;
+						badge();
 					}
 					// return results;
 					resolve(2);
@@ -126,7 +134,7 @@ const downloadManager = async (videoDataObject) => {
 	while (i < tableau2.length) {
 		badge(tableau1.length);
 		downloadVideo(tableau2, totalVideoToDownload);
-        tableau2.shift();
+		tableau2.shift();
 		i++;
 	}
 
@@ -156,13 +164,17 @@ const downloadManager = async (videoDataObject) => {
  * Function donwload Video
  * @description Function for download video from the array Url
  * @var url: array with all Url video
+ * @var totalVideoToDownload: optional, default 1
  */
-const downloadVideo = (videoDataObject, totalVideoToDownload) => {
+const downloadVideo = (videoDataObject, totalVideoToDownload = '1') => {
 	videoDataObject.forEach(async (element) => {
 		let name = await removeSpecialChars(element.videoTitle);
 		let formation = await removeSpecialChars(element.formationTilte);
 		let indexVideo = await indexZero(element.index);
 		let totalVideo = await indexZero(totalVideoToDownload);
+		let url = element.videoUrl;
+
+		// console.debug(`videoDataObject N°${indexVideo}  :>>`, url);
 
 		const videoFileName =
 			'Linkedin-Learning/' +
@@ -177,12 +189,16 @@ const downloadVideo = (videoDataObject, totalVideoToDownload) => {
 			'.mp4';
 
 		// Start download
-		browser.downloads.download({
-			url: element.videoUrl,
-			filename: videoFileName,
-			conflictAction: 'uniquify',
-			saveAs: false,
-		});
+		try {
+			browser.downloads.download({
+				url: url,
+				filename: videoFileName,
+				conflictAction: 'uniquify',
+				saveAs: false,
+			});
+		} catch (error) {
+			console.error(`Error videoDataObject Url ${name} - ${element.videoUrl}`);
+		}
 	});
 };
 
@@ -231,7 +247,6 @@ linkedinLearningVideoDownloader();
 function onClick() {
 	// reset Badget
 	badge();
-
 	// start script
 	chrome.tabs.executeScript({ file: 'script.js' });
 }

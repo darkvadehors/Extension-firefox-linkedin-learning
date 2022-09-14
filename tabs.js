@@ -1,7 +1,7 @@
 /** @format */
 'use strict';
 (async () => {
-	let timer = Math.floor(Math.random() * (14000 - 3000) + 3000);
+	let timer = Math.floor(Math.random() * (15000 - 4000) + 3000);
 	let minuter = parseInt((timer - 1000) / 1000);
 
 	var videoData;
@@ -25,7 +25,7 @@
 			setTimeout(() => {
 				resolve(timerBeforeClose());
 			}, timer);
-		}, 1000); // change the setTimeout whith random value
+		}, 3000);
 	});
 
 	function timerBeforeClose() {
@@ -34,6 +34,7 @@
             if (minuter >= 0){
                 minuter--;
             } else {
+                videoData = "Error";
                 return videoData;
             }
 		}, 1000);

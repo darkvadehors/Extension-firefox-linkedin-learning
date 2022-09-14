@@ -7,15 +7,12 @@ const linkedinLearningVideoDownloader = async () => {
 
 		if (!requestCs.courses_url) {
 			return;
-		} //<= End of if
+		}
 
-		// get the lenght of the array courses_url
-
-		let coursesUrl = requestCs.courses_url;
 		browser.windows.getCurrent().then(
 			(window) => {
 				// Open tabs only in the window the extension was started i n!
-				getVideoUrlloopWithPromises(window.id, coursesUrl);
+				getVideoUrlloopWithPromises(window.id, requestCs.courses_url);
 			},
 			(error) => {
 				console.error(`ERROR: Could not get window id: ${error};`);
@@ -24,100 +21,6 @@ const linkedinLearningVideoDownloader = async () => {
 	});
 };
 
-const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
-	// custom Variable
-	let arrayLength = coursesUrl.length;
-	let url = [];
-	let i = 0;
-	let tabId;
-
-	// using `while` loop
-	while (i < arrayLength) {
-		badge(i + 1);
-		// 1st promise
-		await new Promise((resolve) => {
-			browser.tabs.create(
-				{ url: coursesUrl[i], windowId: hostWindowId, active: true },
-				async (tab) => {
-					tabId = tab.id;
-					resolve(1);
-				},
-			);
-		});
-
-		// 2th promise will resolve after the 1st promise
-		await new Promise((resolve) => {
-			browser.tabs
-				.executeScript(tabId, { file: 'tabs.js' })
-				.then(async (results) => {
-					if (results) {
-						url.push(results);
-						browser.tabs.remove(tabId);
-					}
-					// return results;
-					resolve(2);
-				});
-		});
-
-		i++;
-	}
-	// download Video
-	downloadVideo(url);
-};
-
-/**
- * Function donwload Video
- * @description Function for download video from the array Url
- * @var url: array with all Url video
- */
-
-const downloadVideo = (videoData) => {
-	let arrayLenght = videoData.length;
-
-	// add O before if inf 10
-	if (arrayLenght <= 9) {
-		arrayLenght = '0' + arrayLenght;
-	}
-
-	videoData.forEach(async (element, index) => {
-		let name = await removeSpecialChars(element[0].videoTitle);
-		let formation = await removeSpecialChars(element[0].formationTilte);
-		let videoNbr = index + 1;
-
-		// add O before if inf 10
-		if (videoNbr <= 9) {
-			videoNbr = '0' + videoNbr;
-		}
-
-		const videoFileName =
-			'Linkedin-Learning/' +
-			formation +
-			'/' +
-			videoNbr +
-			'_' +
-			arrayLenght +
-			'-' +
-			// cleaning title
-			name +
-			'.mp4';
-
-		// Start download
-		browser.downloads.download({
-			url: element[0].videoUrl,
-			filename: videoFileName,
-			conflictAction: 'uniquify',
-			saveAs: false,
-		});
-		badge();
-	});
-};
-/*
-                while (tabCount < MAX_TABS && bookmarks.length > 0) {
-                    loadBookmark();
-                }
-
-
-*/
 /**
  * Promise badge
  * @description update the icon badge with the number
@@ -145,6 +48,187 @@ const badge = (nbr = 0) => {
 };
 
 /**
+ *
+ */
+const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
+	let tabId;
+	let videoDataObject = [];
+	let i = 0;
+
+	const promise1 = await new Promise(async (resolve) => {
+		// using `while` loop
+		while (i < coursesUrl.length) {
+			badge(i + 1);
+			// 1st promise
+			await new Promise((resolve) => {
+				browser.tabs.create({ url: coursesUrl[i], windowId: hostWindowId, active: true }, async (tab) => {
+					tabId = tab.id;
+					resolve(1);
+				});
+			});
+
+			// 2th promise will resolve after the 1st promise
+			await new Promise((resolve) => {
+				browser.tabs.executeScript(tabId, { file: 'tabs.js' }).then(async (results) => {
+					if (results) {
+						// set index in results
+						results[0].index = i + 1;
+						videoDataObject.push(results);
+						browser.tabs.remove(tabId);
+					}
+					// return results;
+					resolve(2);
+				});
+			});
+
+			i++;
+		}
+		resolve(1);
+	});
+
+	const promise2 = await new Promise(async (resolve) => {
+		// download Video
+		console.log('videoDataObject avant DLManager :>> ', videoDataObject);
+		// videoDataObject = [
+		// 	{
+		// 		formationTilte: 'video 1',
+		// 		videoTitle: 'Video 1',
+		// 		videoTastModified: '09/13/2022 19:32:15',
+		// 		videoUrl: 'https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/debian-11.5.0-amd64-DVD-1.iso',
+		// 	},
+		// 	{
+		// 		formationTilte: 'video 2',
+		// 		videoTitle: 'video 2',
+		// 		videoTastModified: '09/13/2022 19:32:21',
+		// 		videoUrl: 'https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/debian-11.5.0-amd64-DVD-1.iso',
+		// 	},
+		// 	{
+		// 		formationTilte: 'video 3',
+		// 		videoTitle: 'video 3',
+		// 		videoTastModified: '09/13/2022 19:32:21',
+		// 		videoUrl: 'https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/debian-11.5.0-amd64-DVD-1.iso',
+		// 	},
+		// 	{
+		// 		formationTilte: 'video 4',
+		// 		videoTitle: 'video 4',
+		// 		videoTastModified: '09/13/2022 19:32:21',
+		// 		videoUrl: 'https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/debian-11.5.0-amd64-DVD-1.iso',
+		// 	},
+		// 	{
+		// 		formationTilte: 'video 5',
+		// 		videoTitle: 'video 5',
+		// 		videoTastModified: '09/13/2022 19:32:21',
+		// 		videoUrl: 'https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/debian-11.5.0-amd64-DVD-1.iso',
+		// 	},
+		// ];
+		await downloadManager(videoDataObject);
+		resolve(2);
+	});
+
+	// Promise.all([promise1, promise2]).then(() => {
+	// 	console.log('Fin...');
+	// });
+};
+
+/**
+ * Function downloadManager
+ * @description send to downloadVideo the good Url
+ * @var videoDataObject
+ */
+const downloadManager = async (videoDataObject) => {
+	// set variable
+	let tabDownload = [];
+
+	browser.downloads.onCreated.addListener(handleCreated);
+	browser.downloads.onChanged.addListener(handleChanged);
+
+	// mise en forme du nbr total de video
+	let totalVideoToDownload = videoDataObject.length;
+
+	/**
+	 * Tableau 1 est une copy de VideoDataObject
+	 */
+	var tableau1 = [...videoDataObject.flat()];
+	console.log('videoDataObject tabelau 1 :>> ', tableau1);
+
+	var tableau2 = [];
+
+	for (let index = 0; index < 1; index++) {
+		tableau2.push(tableau1.shift());
+	}
+
+
+	let i = 0;
+	/**
+	 * on boucle sur l'object si le nbr de video télécharge est inf au nbr de video à télécharger
+	 * */
+	while (i < tableau2.length) {
+		badge(tableau1.length);
+		downloadVideo(tableau2, totalVideoToDownload);
+
+		i++;
+	}
+
+	//  surveille les dl creer
+	function handleCreated(item) {
+		console.info(`dl n° ${item.id} creer`);
+	}
+
+	// surveille les changement de statuts des dl
+	function handleChanged(delta) {
+		if (delta.state && delta.state.current === 'complete') {
+			console.info(`Download has completed. => ${delta.id}`);
+			if (tableau1.length !== 0) {
+				tableau2 = [];
+				tableau2.push(tableau1.shift());
+				badge(tableau1.length);
+				downloadVideo(tableau2, totalVideoToDownload);
+			} else {
+				console.info('Téléchargement Terminé');
+				browser.downloads.onChanged.removeListener(handleChanged);
+				browser.downloads.onCreated.removeListener(handleCreated);
+			}
+		}
+	}
+}; // end Download Manager
+
+/**
+ * Function donwload Video
+ * @description Function for download video from the array Url
+ * @var url: array with all Url video
+ */
+const downloadVideo = (videoDataObject, totalVideoToDownload) => {
+
+	videoDataObject.forEach(async (element) => {
+		let name = await removeSpecialChars(element.videoTitle);
+		let formation = await removeSpecialChars(element.formationTilte);
+		let indexVideo = await indexZero(element.index);
+		totalVideoToDownload = await indexZero(totalVideoToDownload);
+
+
+		const videoFileName =
+			'Linkedin-Learning/' +
+			formation +
+			'/' +
+			indexVideo +
+			'_' +
+			totalVideoToDownload +
+			'-' +
+			// cleaning title
+			name +
+			'.mp4';
+
+		// Start download
+		browser.downloads.download({
+			url: element.videoUrl,
+			filename: videoFileName,
+			conflictAction: 'uniquify',
+			saveAs: false,
+		});
+		badge();
+	});
+};
+/**
  * Function removeSpecialChar
  * @description cleaning sting
  * @var str: string to cleaning
@@ -161,6 +245,19 @@ const removeSpecialChars = async (str) => {
 		.replace(/^(\s*)([\W\w]*)(\b\s*$)/g, '$2') //couper la chaîne à supprimer tous les espaces au début ou à la fin.
 		.replace(/\s/g, '_'); // remplace tout les espace par un underscore
 };
+
+/**
+ * function indexZero
+ * @description add zero before number if inf 10
+ * @var number
+ */
+const indexZero = async (nbr) => {
+	if (nbr <= 9) {
+		nbr = '0' + nbr;
+		return nbr;
+	}
+};
+
 /**
  * Start Script
  */
@@ -171,7 +268,10 @@ linkedinLearningVideoDownloader();
  */
 
 function onClick() {
+	// reset Badget
 	badge();
+
+	// start script
 	chrome.tabs.executeScript({ file: 'script.js' });
 }
 

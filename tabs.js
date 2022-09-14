@@ -1,7 +1,7 @@
 /** @format */
 'use strict';
 (async () => {
-	let timer = Math.floor(Math.random() * (14000 - 3000) + 3000);
+	let timer = Math.floor(Math.random() * (4000 - 3000) + 3000);
 	let minuter = parseInt((timer - 1000) / 1000);
 
 	var videoData;
@@ -18,6 +18,7 @@
             timerBeforeClose();
 			// declare videoData Object
 			videoData = {
+                index: 0,
 				formationTilte: formationTitle[0].innerText,
 				videoTitle: videoObject[0].ownerDocument.title,
 				videoTastModified: videoObject[0].ownerDocument.lastModified,

@@ -71,6 +71,8 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 			await new Promise((resolve) => {
 				browser.tabs.executeScript(tabId, { file: 'tabs.js' }).then(async (results) => {
 					if (results) {
+						// set index in results
+						results[0].index = i + 1;
 						videoDataObject.push(results);
 						browser.tabs.remove(tabId);
 					}
@@ -84,16 +86,48 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 		resolve(1);
 	});
 
-	const promise2 = await new Promise(async(resolve) => {
+	const promise2 = await new Promise(async (resolve) => {
 		// download Video
 		console.log('videoDataObject avant DLManager :>> ', videoDataObject);
+		// videoDataObject = [
+		// 	{
+		// 		formationTilte: 'video 1',
+		// 		videoTitle: 'Video 1',
+		// 		videoTastModified: '09/13/2022 19:32:15',
+		// 		videoUrl: 'https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/debian-11.5.0-amd64-DVD-1.iso',
+		// 	},
+		// 	{
+		// 		formationTilte: 'video 2',
+		// 		videoTitle: 'video 2',
+		// 		videoTastModified: '09/13/2022 19:32:21',
+		// 		videoUrl: 'https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/debian-11.5.0-amd64-DVD-1.iso',
+		// 	},
+		// 	{
+		// 		formationTilte: 'video 3',
+		// 		videoTitle: 'video 3',
+		// 		videoTastModified: '09/13/2022 19:32:21',
+		// 		videoUrl: 'https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/debian-11.5.0-amd64-DVD-1.iso',
+		// 	},
+		// 	{
+		// 		formationTilte: 'video 4',
+		// 		videoTitle: 'video 4',
+		// 		videoTastModified: '09/13/2022 19:32:21',
+		// 		videoUrl: 'https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/debian-11.5.0-amd64-DVD-1.iso',
+		// 	},
+		// 	{
+		// 		formationTilte: 'video 5',
+		// 		videoTitle: 'video 5',
+		// 		videoTastModified: '09/13/2022 19:32:21',
+		// 		videoUrl: 'https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/debian-11.5.0-amd64-DVD-1.iso',
+		// 	},
+		// ];
 		await downloadManager(videoDataObject);
 		resolve(2);
 	});
 
-	Promise.all([promise1, promise2]).then(() => {
-		console.log('Fin...');
-	});
+	// Promise.all([promise1, promise2]).then(() => {
+	// 	console.log('Fin...');
+	// });
 };
 
 /**
@@ -101,102 +135,76 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
  * @description send to downloadVideo the good Url
  * @var videoDataObject
  */
-const downloadManager =async (videoDataObject) => {
-	console.log('videoDataObject :>> ', videoDataObject);
+const downloadManager = async (videoDataObject) => {
 	// set variable
-	const maxDl = 2;
-	downloading = 0;
-
-	console.log('videoDataObject.length :>> ', videoDataObject.length);
-	let totalVideoToDownload = videoDataObject.length;
+	let tabDownload = [];
 
 	browser.downloads.onCreated.addListener(handleCreated);
 	browser.downloads.onChanged.addListener(handleChanged);
 
 	// mise en forme du nbr total de video
-	if (videoDataObject.length <= 9) {
-		totalVideoToDownload = '0' + videoDataObject.length;
-	}
-	console.log('totalVideoToDownload :>> ', totalVideoToDownload);
-	// pour chaque video on verifie le nbr de dl en cours et on lance un nouveau si c'est bon
-	videoDataObject.forEach((element) => {
-		// Element est une video avec toutes ces informations
-		console.log(`element :>> `, element);
+	let totalVideoToDownload = videoDataObject.length;
 
-		// Si element est plus petit que maxDl alors on charge une autre video sinon on attend
-		let i = 0;
-		while (i < totalVideoToDownload && this.downloading < maxDl) {
-			console.log(` ------------ dl ${i} --------------- `);
-			console.log('totalVideoDownload," - ", downloading :>> ', totalVideoToDownload, ' - ', this.downloading);
-
-			downloadVideo(videoDataObject[0], i, totalVideoToDownload);
-
-			videoDataObject.shift();
-
-			badge(videoDataObject.length);
-			i++;
-		}
-	});
-
-	browser.downloads.onChanged.removeListener(handleChanged);
-	browser.downloads.onCreated.removeListener(handleCreated);
-};
-
-//  surveille les dl creer
-function handleCreated(item) {
-	// affiche l'url des telechargememnnt
 	/**
-	 * donc mettre dans un tableau les telechargemenbt au
-	 * fur et a mesure puis les enlever quand ils sont fini
+	 * Tableau 1 est une copy de VideoDataObject
 	 */
+	var tableau1 = [...videoDataObject.flat()];
+	console.log('videoDataObject tabelau 1 :>> ', tableau1);
 
-	console.log(`dl n° ${item.id} creer`);
-	this.downloading++;
-}
+	var tableau2 = [];
 
-// surveille les changement de statuts des dl
-function handleChanged(delta) {
-	if (delta.state && delta.state.current === 'complete') {
-		console.log(`Download has completed. => ${delta.id}`);
-		this.downloading--;
+	for (let index = 0; index < 1; index++) {
+		tableau2.push(tableau1.shift());
 	}
-}
+
+
+	let i = 0;
+	/**
+	 * on boucle sur l'object si le nbr de video télécharge est inf au nbr de video à télécharger
+	 * */
+	while (i < tableau2.length) {
+		badge(tableau1.length);
+		downloadVideo(tableau2, totalVideoToDownload);
+
+		i++;
+	}
+
+	//  surveille les dl creer
+	function handleCreated(item) {
+		console.info(`dl n° ${item.id} creer`);
+	}
+
+	// surveille les changement de statuts des dl
+	function handleChanged(delta) {
+		if (delta.state && delta.state.current === 'complete') {
+			console.info(`Download has completed. => ${delta.id}`);
+			if (tableau1.length !== 0) {
+				tableau2 = [];
+				tableau2.push(tableau1.shift());
+				badge(tableau1.length);
+				downloadVideo(tableau2, totalVideoToDownload);
+			} else {
+				console.info('Téléchargement Terminé');
+				browser.downloads.onChanged.removeListener(handleChanged);
+				browser.downloads.onCreated.removeListener(handleCreated);
+			}
+		}
+	}
+}; // end Download Manager
 
 /**
  * Function donwload Video
  * @description Function for download video from the array Url
  * @var url: array with all Url video
  */
-/**
- * on a un array qui contient une liste d'object a telecharger
- * il faut un compteur de DL max
- * il faut prendre les element de la liste un par un  et les supprimers au fur et a mesure qu'on les prends
- * pour les telecharger si le max n'est pas atteind
- *
- */
-
-const downloadVideo = (videoDataObject, index, totalVideoToDownload) => {
-	this.downloading++;
-	let indexVideo = index + 1;
-	// add O before if inf 10
-	// if (videoDataObject[0].id <= 9) {
-	// 	videoDataObject[0].id = '0' + videoDataObject[0].id;
-	// }
-
-	console.log('download videoDataObject', videoDataObject);
+const downloadVideo = (videoDataObject, totalVideoToDownload) => {
 
 	videoDataObject.forEach(async (element) => {
-		console.log('element dans forEach :>> ', element);
 		let name = await removeSpecialChars(element.videoTitle);
 		let formation = await removeSpecialChars(element.formationTilte);
+		let indexVideo = await indexZero(element.index);
+		totalVideoToDownload = await indexZero(totalVideoToDownload);
 
-		// add O before if inf 10
-		if (indexVideo <= 9) {
-			indexVideo = '0' + indexVideo;
-		}
-		if (videoDataObject.lenght <= 9) {
-			totalVideoToDownload = '0' + videoData;
-		}
 
 		const videoFileName =
 			'Linkedin-Learning/' +
@@ -236,6 +244,18 @@ const removeSpecialChars = async (str) => {
 		.replace(/\s+/g, ' ') //trouver toute apparence de 1 ou plus des espaces et de la remplacer par un espace blanc simple
 		.replace(/^(\s*)([\W\w]*)(\b\s*$)/g, '$2') //couper la chaîne à supprimer tous les espaces au début ou à la fin.
 		.replace(/\s/g, '_'); // remplace tout les espace par un underscore
+};
+
+/**
+ * function indexZero
+ * @description add zero before number if inf 10
+ * @var number
+ */
+const indexZero = async (nbr) => {
+	if (nbr <= 9) {
+		nbr = '0' + nbr;
+		return nbr;
+	}
 };
 
 /**

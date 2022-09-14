@@ -213,6 +213,8 @@ const indexZero = async (nbr) => {
 	if (nbr < 10) {
 		nbr = `0${nbr}`;
 		return nbr;
+	} else {
+		return nbr;
 	}
 };
 

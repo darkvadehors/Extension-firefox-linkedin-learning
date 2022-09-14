@@ -3,7 +3,7 @@
 const linkedinLearningVideoDownloader = async () => {
 	// receive the array from script.js
 	browser.runtime.onMessage.addListener((requestCs) => {
-		console.info('Nbr of Video :>> ', requestCs.courses_url.length);
+		console.info('LL-VideoDl-Video in course :', requestCs.courses_url.length);
 
 		if (!requestCs.courses_url) {
 			return;
@@ -26,18 +26,22 @@ const linkedinLearningVideoDownloader = async () => {
  * @description update the icon badge with the number
  * @var nbr: number to display
  */
-const badge = (nbr = 0) => {
+ const badge = (nbr = 0, total = 0, color = "rgb(53, 167, 90)") => {
+    console.log("=================");
 	// color in red the number on Icon
 	// browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
-	browser.browserAction.setIcon({
-		path: 'icons/icon-48-red.png',
-	});
-
+	browser.browserAction.setIcon({ path: 'icons/icon-48-red.png' });
+    let text;
 	// add the number of the course and the red color to the button
 	if (nbr > 0) {
-		browser.browserAction.setBadgeText({
-			text: nbr.toString(),
-		});
+        if (total !== 0) {
+            text = nbr.toString() + '/' + total;
+        } else {
+            text = nbr.toString();
+        }
+		browser.browserAction.setBadgeTextColor({ color: 'white' });
+		browser.browserAction.setBadgeBackgroundColor({ color: color });
+		browser.browserAction.setBadgeText({ text: text });
 	} else {
 		browser.browserAction.setBadgeText({ text: '' });
 		browser.browserAction.setIcon({
@@ -58,7 +62,7 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 	const promise1 = await new Promise(async (resolve) => {
 		// using `while` loop
 		while (i < coursesUrl.length) {
-			badge(i + 1);
+			badge(i + 1, coursesUrl.length);
 			// 1st promise
 			await new Promise((resolve) => {
 				browser.tabs.create({ url: coursesUrl[i], windowId: hostWindowId, active: true }, async (tab) => {
@@ -70,7 +74,7 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 			// 2th promise will resolve after the 1st promise
 			await new Promise((resolve) => {
 				browser.tabs.executeScript(tabId, { file: 'tabs.js' }).then(async (results) => {
-					console.debug(`Results video N°${i + 1}-${results[0].videoUrl}`);
+					// console.debug(`Results video N°${i + 1}-${results[0].videoUrl}`);
 
 					if (results[0] !== 'Error') {
 						// set index in results
@@ -132,7 +136,7 @@ const downloadManager = async (videoDataObject) => {
 	 * on boucle sur l'object si le nbr de video télécharge est inf au nbr de video à télécharger
 	 * */
 	while (i < tableau2.length) {
-		badge(tableau1.length);
+		badge(tableau1.length, totalVideoToDownload, "red");
 		downloadVideo(tableau2, totalVideoToDownload);
 		tableau2.shift();
 		i++;
@@ -149,7 +153,7 @@ const downloadManager = async (videoDataObject) => {
 			if (tableau1.length !== 0) {
 				tableau2 = [];
 				tableau2.push(await tableau1.shift());
-				badge(tableau1.length);
+				badge(tableau1.length, totalVideoToDownload, "red");
 				downloadVideo(tableau2, totalVideoToDownload);
 			} else {
 				browser.downloads.onChanged.removeListener(handleChanged);

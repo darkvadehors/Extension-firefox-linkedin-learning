@@ -15,6 +15,7 @@ const linkedinLearningVideoDownloader = async () => {
 				getVideoUrlloopWithPromises(window.id, requestCs.courses_url);
 			},
 			(error) => {
+
 				console.error(`ERROR: Could not get window id: ${error};`);
 			},
 		);
@@ -26,19 +27,18 @@ const linkedinLearningVideoDownloader = async () => {
  * @description update the icon badge with the number
  * @var nbr: number to display
  */
- const badge = (nbr = 0, total = 0, color = "rgb(53, 167, 90)") => {
-    console.log("=================");
+const badge = (nbr = 0, total = 0, color = 'rgb(53, 167, 90)') => {
 	// color in red the number on Icon
 	// browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
 	browser.browserAction.setIcon({ path: 'icons/icon-48-red.png' });
-    let text;
+	let text;
 	// add the number of the course and the red color to the button
 	if (nbr > 0) {
-        if (total !== 0) {
-            text = nbr.toString() + '/' + total;
-        } else {
-            text = nbr.toString();
-        }
+		if (total !== 0 && nbr <= 9) {
+			text = nbr.toString() + '|' + total;
+		} else {
+			text = nbr.toString();
+		}
 		browser.browserAction.setBadgeTextColor({ color: 'white' });
 		browser.browserAction.setBadgeBackgroundColor({ color: color });
 		browser.browserAction.setBadgeText({ text: text });
@@ -63,6 +63,7 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 		// using `while` loop
 		while (i < coursesUrl.length) {
 			badge(i + 1, coursesUrl.length);
+
 			// 1st promise
 			await new Promise((resolve) => {
 				browser.tabs.create({ url: coursesUrl[i], windowId: hostWindowId, active: true }, async (tab) => {
@@ -111,8 +112,7 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
  * @var videoDataObject
  */
 const downloadManager = async (videoDataObject) => {
-	// set variable
-	let tabDownload = [];
+	let tabDownloaded = [];
 
 	browser.downloads.onCreated.addListener(handleCreated);
 	browser.downloads.onChanged.addListener(handleChanged);
@@ -136,7 +136,7 @@ const downloadManager = async (videoDataObject) => {
 	 * on boucle sur l'object si le nbr de video télécharge est inf au nbr de video à télécharger
 	 * */
 	while (i < tableau2.length) {
-		badge(tableau1.length, totalVideoToDownload, "red");
+		badge(tableau1.length, totalVideoToDownload, 'red');
 		downloadVideo(tableau2, totalVideoToDownload);
 		tableau2.shift();
 		i++;
@@ -145,6 +145,9 @@ const downloadManager = async (videoDataObject) => {
 	//  surveille les dl creer
 	function handleCreated(item) {
 		// console.info(`dl n° ${item.id} creer`);
+		// push every dl in new array
+		tabDownloaded.push(item.id);
+		console.log('tabDownloaded :>> ', tabDownloaded);
 	}
 
 	// surveille les changement de statuts des dl
@@ -153,7 +156,7 @@ const downloadManager = async (videoDataObject) => {
 			if (tableau1.length !== 0) {
 				tableau2 = [];
 				tableau2.push(await tableau1.shift());
-				badge(tableau1.length, totalVideoToDownload, "red");
+				badge(tableau1.length, totalVideoToDownload, 'red');
 				downloadVideo(tableau2, totalVideoToDownload);
 			} else {
 				browser.downloads.onChanged.removeListener(handleChanged);
@@ -251,6 +254,7 @@ linkedinLearningVideoDownloader();
 function onClick() {
 	// reset Badget
 	badge();
+
 	// start script
 	chrome.tabs.executeScript({ file: 'script.js' });
 }

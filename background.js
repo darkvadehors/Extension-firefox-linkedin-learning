@@ -22,7 +22,7 @@ const linkedinLearningVideoDownloader = async () => {
 };
 
 /**
- * Promise badge
+ * function badge
  * @description update the icon badge with the number
  * @var nbr: number to display
  */
@@ -48,7 +48,7 @@ const badge = (nbr = 0) => {
 };
 
 /**
- *
+ * fucntion Get Video Url Loop With promise
  */
 const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 	let tabId;
@@ -88,46 +88,9 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 
 	const promise2 = await new Promise(async (resolve) => {
 		// download Video
-		console.log('videoDataObject avant DLManager :>> ', videoDataObject);
-		// videoDataObject = [
-		// 	{
-		// 		formationTilte: 'video 1',
-		// 		videoTitle: 'Video 1',
-		// 		videoTastModified: '09/13/2022 19:32:15',
-		// 		videoUrl: 'https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/debian-11.5.0-amd64-DVD-1.iso',
-		// 	},
-		// 	{
-		// 		formationTilte: 'video 2',
-		// 		videoTitle: 'video 2',
-		// 		videoTastModified: '09/13/2022 19:32:21',
-		// 		videoUrl: 'https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/debian-11.5.0-amd64-DVD-1.iso',
-		// 	},
-		// 	{
-		// 		formationTilte: 'video 3',
-		// 		videoTitle: 'video 3',
-		// 		videoTastModified: '09/13/2022 19:32:21',
-		// 		videoUrl: 'https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/debian-11.5.0-amd64-DVD-1.iso',
-		// 	},
-		// 	{
-		// 		formationTilte: 'video 4',
-		// 		videoTitle: 'video 4',
-		// 		videoTastModified: '09/13/2022 19:32:21',
-		// 		videoUrl: 'https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/debian-11.5.0-amd64-DVD-1.iso',
-		// 	},
-		// 	{
-		// 		formationTilte: 'video 5',
-		// 		videoTitle: 'video 5',
-		// 		videoTastModified: '09/13/2022 19:32:21',
-		// 		videoUrl: 'https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/debian-11.5.0-amd64-DVD-1.iso',
-		// 	},
-		// ];
 		await downloadManager(videoDataObject);
 		resolve(2);
 	});
-
-	// Promise.all([promise1, promise2]).then(() => {
-	// 	console.log('Fin...');
-	// });
 };
 
 /**
@@ -149,14 +112,12 @@ const downloadManager = async (videoDataObject) => {
 	 * Tableau 1 est une copy de VideoDataObject
 	 */
 	var tableau1 = [...videoDataObject.flat()];
-	console.log('videoDataObject tabelau 1 :>> ', tableau1);
 
 	var tableau2 = [];
 
 	for (let index = 0; index < 1; index++) {
 		tableau2.push(tableau1.shift());
 	}
-
 
 	let i = 0;
 	/**
@@ -165,28 +126,26 @@ const downloadManager = async (videoDataObject) => {
 	while (i < tableau2.length) {
 		badge(tableau1.length);
 		downloadVideo(tableau2, totalVideoToDownload);
-
 		i++;
 	}
 
 	//  surveille les dl creer
 	function handleCreated(item) {
-		console.info(`dl n° ${item.id} creer`);
+		// console.info(`dl n° ${item.id} creer`);
 	}
 
 	// surveille les changement de statuts des dl
 	function handleChanged(delta) {
 		if (delta.state && delta.state.current === 'complete') {
-			console.info(`Download has completed. => ${delta.id}`);
 			if (tableau1.length !== 0) {
 				tableau2 = [];
 				tableau2.push(tableau1.shift());
 				badge(tableau1.length);
 				downloadVideo(tableau2, totalVideoToDownload);
 			} else {
-				console.info('Téléchargement Terminé');
 				browser.downloads.onChanged.removeListener(handleChanged);
 				browser.downloads.onCreated.removeListener(handleCreated);
+				badge();
 			}
 		}
 	}
@@ -198,13 +157,11 @@ const downloadManager = async (videoDataObject) => {
  * @var url: array with all Url video
  */
 const downloadVideo = (videoDataObject, totalVideoToDownload) => {
-
 	videoDataObject.forEach(async (element) => {
 		let name = await removeSpecialChars(element.videoTitle);
 		let formation = await removeSpecialChars(element.formationTilte);
 		let indexVideo = await indexZero(element.index);
-		totalVideoToDownload = await indexZero(totalVideoToDownload);
-
+		let totalVideo = await indexZero(totalVideoToDownload);
 
 		const videoFileName =
 			'Linkedin-Learning/' +
@@ -212,7 +169,7 @@ const downloadVideo = (videoDataObject, totalVideoToDownload) => {
 			'/' +
 			indexVideo +
 			'_' +
-			totalVideoToDownload +
+			totalVideo +
 			'-' +
 			// cleaning title
 			name +
@@ -225,9 +182,9 @@ const downloadVideo = (videoDataObject, totalVideoToDownload) => {
 			conflictAction: 'uniquify',
 			saveAs: false,
 		});
-		badge();
 	});
 };
+
 /**
  * Function removeSpecialChar
  * @description cleaning sting
@@ -250,10 +207,11 @@ const removeSpecialChars = async (str) => {
  * function indexZero
  * @description add zero before number if inf 10
  * @var number
+ * @returns str
  */
 const indexZero = async (nbr) => {
-	if (nbr <= 9) {
-		nbr = '0' + nbr;
+	if (nbr < 10) {
+		nbr = `0${nbr}`;
 		return nbr;
 	}
 };

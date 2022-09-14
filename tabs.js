@@ -7,11 +7,7 @@
 	var videoData;
 
 	await new Promise(async (resolve) => {
-		console.log('dans tab');
-		// document title
-		// document.title = 'Do not touch !';
 		setTimeout(() => {
-			console.log('dans tab dans settime');
 			// get the url of the video course
 			const videoObject = document.querySelectorAll('video.vjs-tech');
 			const formationTitle = document.querySelectorAll('div.classroom-nav__details > h1');

@@ -126,6 +126,7 @@ const downloadManager = async (videoDataObject) => {
 	while (i < tableau2.length) {
 		badge(tableau1.length);
 		downloadVideo(tableau2, totalVideoToDownload);
+        tableau2.shift();
 		i++;
 	}
 
@@ -135,11 +136,11 @@ const downloadManager = async (videoDataObject) => {
 	}
 
 	// surveille les changement de statuts des dl
-	function handleChanged(delta) {
+	async function handleChanged(delta) {
 		if (delta.state && delta.state.current === 'complete') {
 			if (tableau1.length !== 0) {
 				tableau2 = [];
-				tableau2.push(tableau1.shift());
+				tableau2.push(await tableau1.shift());
 				badge(tableau1.length);
 				downloadVideo(tableau2, totalVideoToDownload);
 			} else {

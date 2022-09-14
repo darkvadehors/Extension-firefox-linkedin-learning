@@ -15,7 +15,6 @@ const linkedinLearningVideoDownloader = async () => {
 				getVideoUrlloopWithPromises(window.id, requestCs.courses_url);
 			},
 			(error) => {
-
 				console.error(`ERROR: Could not get window id: ${error};`);
 			},
 		);
@@ -147,11 +146,14 @@ const downloadManager = async (videoDataObject) => {
 		// console.info(`dl n° ${item.id} creer`);
 		// push every dl in new array
 		tabDownloaded.push(item.id);
-		console.log('tabDownloaded :>> ', tabDownloaded);
 	}
 
 	// surveille les changement de statuts des dl
 	async function handleChanged(delta) {
+		if (tabDownloaded.length >= 3) {
+			erasing();
+			tabDownloaded.pop();
+		}
 		if (delta.state && delta.state.current === 'complete') {
 			if (tableau1.length !== 0) {
 				tableau2 = [];
@@ -209,6 +211,12 @@ const downloadVideo = (videoDataObject, totalVideoToDownload = '1') => {
 	});
 };
 
+const erasing = () => {
+	browser.downloads.erase({
+		limit: 1,
+		orderBy: ['startTime'],
+	});
+};
 /**
  * Function removeSpecialChar
  * @description cleaning sting

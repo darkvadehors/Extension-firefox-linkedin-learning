@@ -73,7 +73,7 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 
 			// 2th promise will resolve after the 1st promise
 			await new Promise((resolve) => {
-				browser.tabs.executeScript(tabId, { file: 'tabs.js' }).then(async (results) => {
+				browser.tabs.executeScript(tabId, { file: '/content_scripts/tabs.js' }).then(async (results) => {
 					// console.debug(`Results video N°${i + 1}-${results[0].videoUrl}`);
 
 					if (results[0] !== 'Error') {
@@ -264,7 +264,7 @@ function onClick() {
 	badge();
 
 	// start script
-	chrome.tabs.executeScript({ file: 'script.js' });
+	chrome.tabs.executeScript({ file: '/content_scripts/script.js' });
 }
 
 browser.browserAction.onClicked.addListener(onClick);

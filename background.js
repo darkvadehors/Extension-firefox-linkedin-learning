@@ -135,7 +135,7 @@ const downloadManager = async (videoDataObject) => {
 	 * on boucle sur l'object si le nbr de video télécharge est inf au nbr de video à télécharger
 	 * */
 	while (i < tableau2.length) {
-		badge(tableau1.length, totalVideoToDownload, 'red');
+		badge(tableau1.length, 0, 'red');
 		downloadVideo(tableau2, totalVideoToDownload);
 		tableau2.shift();
 		i++;
@@ -158,7 +158,7 @@ const downloadManager = async (videoDataObject) => {
 			if (tableau1.length !== 0) {
 				tableau2 = [];
 				tableau2.push(await tableau1.shift());
-				badge(tableau1.length, totalVideoToDownload, 'red');
+				badge(tableau1.length, 0, 'red');
 				downloadVideo(tableau2, totalVideoToDownload);
 			} else {
 				browser.downloads.onChanged.removeListener(handleChanged);

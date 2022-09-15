@@ -12,12 +12,7 @@
         "<all_urls>",
         "activeTab",
         "tabs",
-        "downloads",
-        "storage",
-        "unlimitedStorage",
-        "webNavigation",
-        "webRequest",
-        "webRequestBlocking"
+        "downloads"
     ],
     "browser_action": {
         "default_icon": "icons/icon-48.png",

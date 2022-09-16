@@ -3,7 +3,7 @@
     "name": "Linkedin learning Video Downloader",
     "version": "1.0",
     "description": "Download all the videos of a Linkedin Learning Premium training",
-    "homepage_url": "https://johnben.ch/",
+    "homepage_url": "https://github.com/darkvadehors/Extension-firefox-linkedin-learning",
     "icons": {
         "32": "icons/icon-32.png",
         "48": "icons/icon-48.png"
@@ -11,8 +11,10 @@
     "permissions": [
         "<all_urls>",
         "activeTab",
-        "tabs",
-        "downloads"
+        "downloads",
+        "webNavigation",
+        "webRequest",
+        "webRequestBlocking"
     ],
     "browser_action": {
         "default_icon": "icons/icon-48.png",

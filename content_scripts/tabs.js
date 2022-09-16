@@ -22,26 +22,20 @@
 				videoTastModified: videoObject[0].ownerDocument.lastModified,
 				videoUrl: videoObject[0].src,
 			};
-
 		}, 1000);
 
 		function timerBeforeClose(minuter) {
 			let min = minuter;
-			console.log('timerBeforeClose entree :>> ', timerBeforeClose);
 			const interval = setInterval(() => {
-				console.log('fx setinterval', min);
-
 				if (min >= 0) {
 					document.title = 'Close in ' + (min + 1) + " sec. don't touch !";
 					min--;
 				} else {
-                    clearInterval(interval);
+					clearInterval(interval);
 					resolve(1);
 				}
 			}, 1000);
 		}
 	});
-
-    console.log('videoData :>> ', videoData);
 	return videoData;
 })();

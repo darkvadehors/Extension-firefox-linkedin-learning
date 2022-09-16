@@ -29,7 +29,7 @@ const linkedinLearningVideoDownloader = async () => {
 const badge = (nbr = 0, total = 0, color = 'rgb(53, 167, 90)') => {
 	// color in red the number on Icon
 	// browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
-	browser.browserAction.setIcon({ path: 'icons/icon-48-red.png' });
+	browser.browserAction.setIcon({ path: '/img/icons/icon-48-red.png' });
 	let text;
 	// add the number of the course and the red color to the button
 	if (nbr > 0) {
@@ -44,7 +44,7 @@ const badge = (nbr = 0, total = 0, color = 'rgb(53, 167, 90)') => {
 	} else {
 		browser.browserAction.setBadgeText({ text: '' });
 		browser.browserAction.setIcon({
-			path: 'icons/icon-48.png',
+			path: '/img/icons/icon-48.png',
 		});
 	}
 	// resolve('badge OK');

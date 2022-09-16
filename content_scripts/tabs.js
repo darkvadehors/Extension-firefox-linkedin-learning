@@ -1,8 +1,10 @@
 /** @format */
-'use strict';
+
 (async () => {
-	let timer = Math.floor(Math.random() * (15000 - 4000) + 3000);
-	let minuter = parseInt((timer - 1000) / 1000);
+	const min = 3000;
+	const max = 15000;
+	const timer = Math.floor(Math.random() * (max - min) + min);
+	const minuter = parseInt((timer - 1000) / 1000);
 
 	var videoData;
 
@@ -11,36 +13,35 @@
 			// get the url of the video course
 			const videoObject = document.querySelectorAll('video.vjs-tech');
 			const formationTitle = document.querySelectorAll('div.classroom-nav__details > h1');
-            timerBeforeClose();
+			timerBeforeClose(minuter);
 			// declare videoData Object
 			videoData = {
-                index: 0,
+				index: 0,
 				formationTilte: formationTitle[0].innerText,
 				videoTitle: videoObject[0].ownerDocument.title,
 				videoTastModified: videoObject[0].ownerDocument.lastModified,
 				videoUrl: videoObject[0].src,
 			};
 
-			// send array to background.js
-			setTimeout(() => {
-				resolve(timerBeforeClose());
-			}, timer);
-		}, 3000);
+		}, 1000);
+
+		function timerBeforeClose(minuter) {
+			let min = minuter;
+			console.log('timerBeforeClose entree :>> ', timerBeforeClose);
+			const interval = setInterval(() => {
+				console.log('fx setinterval', min);
+
+				if (min >= 0) {
+					document.title = 'Close in ' + (min + 1) + " sec. don't touch !";
+					min--;
+				} else {
+                    clearInterval(interval);
+					resolve(1);
+				}
+			}, 1000);
+		}
 	});
 
-	function timerBeforeClose() {
-		setInterval(async () => {
-			document.title = 'Close in ' + (minuter + 1) + " sec. don't touch !";
-            if (minuter >= 0){
-                minuter--;
-            } else {
-                videoData = "Error";
-                return videoData;
-            }
-		}, 1000);
-	}
-
+    console.log('videoData :>> ', videoData);
 	return videoData;
 })();
-
-

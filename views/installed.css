@@ -1,0 +1,39 @@
+header {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 30px;
+}
+header>img {
+    margin: auto;
+    width: 96px;
+}
+header>h1{
+    text-align: center;
+}
+
+main {
+    text-align: center;
+    margin: auto;
+}
+
+.img5 {
+    width: 500px;
+}
+
+main {
+    margin: 20px auto;
+    width: 800px;
+}
+
+#lesson_picture{
+    margin: auto;
+
+}
+
+#button {
+    display: flex;
+    justify-content: space-around;
+}
+#button>div {
+    width: 140px;
+}

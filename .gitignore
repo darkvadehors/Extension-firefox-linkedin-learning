@@ -8,4 +8,4 @@ memo.txt
 memo.txt
 node_modules
 web-ext-artifacts/
-icons/.DS_Store
+.DS_Store

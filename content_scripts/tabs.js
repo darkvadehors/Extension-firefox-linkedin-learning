@@ -1,10 +1,10 @@
 /** @format */
 
 (async () => {
-	const min = 3000;
-	const max = 15000;
-	const timer = Math.floor(Math.random() * (max - min) + min);
-	const minuter = parseInt((timer - 1000) / 1000);
+    const minimum = 2000;
+    const maximum = 8000;
+	const delay = Math.floor(Math.random() * (maximum - minimum) + minimum);
+	let countDown = parseInt((delay - 1000) / 1000);
 
 	var videoData;
 
@@ -13,7 +13,16 @@
 			// get the url of the video course
 			const videoObject = document.querySelectorAll('video.vjs-tech');
 			const formationTitle = document.querySelectorAll('div.classroom-nav__details > h1');
-			timerBeforeClose(minuter);
+			// timerBeforeClose();
+			const cound = setInterval(() => {
+				document.title = 'Close in ' + (countDown + 1) + " sec. don't touch !";
+				if (countDown >= 0) {
+					countDown--;
+				} else {
+					clearInterval(cound);
+					resolve(1);
+				}
+			}, 1000);
 			// declare videoData Object
 			videoData = {
 				index: 0,
@@ -22,20 +31,9 @@
 				videoTastModified: videoObject[0].ownerDocument.lastModified,
 				videoUrl: videoObject[0].src,
 			};
-		}, 1000);
 
-		function timerBeforeClose(minuter) {
-			let min = minuter;
-			const interval = setInterval(() => {
-				if (min >= 0) {
-					document.title = 'Close in ' + (min + 1) + " sec. don't touch !";
-					min--;
-				} else {
-					clearInterval(interval);
-					resolve(1);
-				}
-			}, 1000);
-		}
+		}, 1000);
 	});
+
 	return videoData;
 })();

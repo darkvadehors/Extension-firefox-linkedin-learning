@@ -73,24 +73,41 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 
 			// 2th promise will resolve after the 1st promise
 			await new Promise((resolve) => {
-				browser.tabs.executeScript(tabId, { file: '/content_scripts/tabs.js' }).then(async (results) => {
-					// console.debug(`Results video N°${i + 1}-${results[0].videoUrl}`);
+				browser.webNavigation.onCompleted.addListener(logOnCompleted);
 
-					if (results[0] !== 'Error') {
-						// set index in results
-						results[0].index = i + 1;
-						videoDataObject.push(results);
-						browser.tabs.remove(tabId);
-						resolve(2);
-					} else {
-						browser.tabs.remove(tabId);
-						console.debug(`Error in Open Tabs Id:${tabId}`);
-						i--;
-						badge();
+				/**
+				 * new
+				 */
+				function logOnCompleted(details) {
+					if (details.url === coursesUrl[i]) {
+						browser.tabs
+							.executeScript(tabId, { file: '/content_scripts/tabs.js' })
+							.then(async (results) => {
+								// console.debug(`Results video N°${i + 1}-${results[0].videoUrl}`);
+
+								if (results[0] === 'Error' || results[0] === undefined || results[0] === null) {
+									console.log('result erreur');
+									browser.tabs.remove(tabId);
+									console.debug(`Error in Open Tabs Id:${tabId}`);
+									i--;
+									badge();
+								} else {
+									// set index in results
+									results[0].index = i + 1;
+									videoDataObject.push(results);
+									browser.tabs.remove(tabId);
+								}
+
+								// return results;
+								browser.webNavigation.onCompleted.removeListener(logOnCompleted);
+								resolve(1);
+							})
+							.catch(() => {
+								browser.webNavigation.onCompleted.removeListener(logOnCompleted);
+								badge();
+							});
 					}
-					// return results;
-					resolve(2);
-				});
+				}
 			});
 
 			i++;
@@ -158,7 +175,7 @@ const downloadManager = async (videoDataObject) => {
 			if (tableau1.length !== 0) {
 				tableau2 = [];
 				tableau2.push(await tableau1.shift());
-				badge(tableau1.length + 1, 0, 'red');
+				badge(tableau1.length + 1 , 0, 'red');
 				downloadVideo(tableau2, totalVideoToDownload);
 			} else {
 				browser.downloads.onChanged.removeListener(handleChanged);

@@ -27,6 +27,8 @@ const linkedinLearningVideoDownloader = async () => {
  * function badge
  * @description update the icon badge with the number
  * @var nbr: number to display
+ * @var total optional, default 0
+ * @var color Optional, default Green
  */
 const badge = (nbr = 0, total = 0, color = 'rgb(53, 167, 90)') => {
 	// color in red the number on Icon
@@ -295,3 +297,35 @@ function onClick() {
 }
 
 browser.browserAction.onClicked.addListener(onClick);
+
+/**
+ *
+ */
+function activeButton() {
+
+	let gettingActiveTab = browser.tabs.query({ active: true, currentWindow: true });
+
+	gettingActiveTab.then((tabs) => {
+        //  tab Url
+		let url = tabs[0].url;
+        let tabId = tabs[0].id
+        try {
+            if (url.indexOf('linkedin.com/learning/')) {
+                browser.browserAction.enable(
+                    tabId // optional integer
+                  )
+                  browser.browserAction.setTitle(
+                { title: "Linkedin learning Video Downloader." }
+              )
+        }
+        } catch (error) {
+            browser.browserAction.disable(tabId)
+            browser.browserAction.setTitle(
+                { title: "Not Enable on this page!" }
+              )
+        }
+
+	});
+}
+
+browser.tabs.onActivated.addListener(activeButton);

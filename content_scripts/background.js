@@ -1,9 +1,11 @@
 /** @format */
 
+// TODO check if page in learning and change color icon
+
 const linkedinLearningVideoDownloader = async () => {
 	// receive the array from script.js
 	browser.runtime.onMessage.addListener((requestCs) => {
-		console.info('LL-VideoDl-Video in course :', requestCs.courses_url.length);
+		// console.info('LL-VideoDl-Video in course :', requestCs.courses_url.length);
 
 		if (!requestCs.courses_url) {
 			return;
@@ -288,7 +290,6 @@ linkedinLearningVideoDownloader();
 function onClick() {
 	// reset Badget
 	badge();
-
 	// start script
 	chrome.tabs.executeScript({ file: '/content_scripts/script.js' });
 }

@@ -37,3 +37,11 @@ main {
 #button>div {
     width: 140px;
 }
+#github{
+    display: flex;
+ flex-direction: row;
+ vertical-align: middle;
+}
+#github a , #github h3{
+    margin: auto 20px;
+}

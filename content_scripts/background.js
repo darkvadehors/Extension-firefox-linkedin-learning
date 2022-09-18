@@ -3,6 +3,7 @@
 // TODO check if page in learning and change color icon
 
 const linkedinLearningVideoDownloader = async () => {
+
 	// receive the array from script.js
 	browser.runtime.onMessage.addListener((requestCs) => {
 		// console.info('LL-VideoDl-Video in course :', requestCs.courses_url.length);
@@ -65,7 +66,7 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 	const promise1 = await new Promise(async (resolve) => {
 		// using `while` loop
 		while (i < coursesUrl.length) {
-			badge(i + 1, coursesUrl.length);
+			badge(i + 1, coursesUrl.length, "red");
 
 			// 1st promise
 			await new Promise((resolve) => {
@@ -301,31 +302,38 @@ browser.browserAction.onClicked.addListener(onClick);
 /**
  *
  */
-function activeButton() {
+function buttonStatut() {
+	let gettingActiveTab =  browser.tabs.query({ active: true, currentWindow: true });
 
-	let gettingActiveTab = browser.tabs.query({ active: true, currentWindow: true });
+    console.log("buttonStatut" ,gettingActiveTab);
 
 	gettingActiveTab.then((tabs) => {
-        //  tab Url
-		let url = tabs[0].url;
-        let tabId = tabs[0].id
-        try {
-            if (url.indexOf('linkedin.com/learning/')) {
-                browser.browserAction.enable(
-                    tabId // optional integer
-                  )
-                  browser.browserAction.setTitle(
-                { title: "Linkedin learning Video Downloader." }
-              )
-        }
-        } catch (error) {
-            browser.browserAction.disable(tabId)
-            browser.browserAction.setTitle(
-                { title: "Not Enable on this page!" }
-              )
-        }
-
+        let tabId = tabs[0].id;
+        console.log('tabId :>> ', tabId);
+        disableButton(tabId);
+		let url =  tabs[0].url;
+        console.log('url :>> ',  url);
+        console.log('host :>> ', window.location.hostname);
+		try {
+			if (url.indexOf('www.linkedin.com/learning/') > -1 ) {
+                console.log("if");
+				browser.browserAction.enable(tabId);
+                browser.browserAction.setIcon({ path: '/img/icons/icon-48.png' });
+				browser.browserAction.setTitle({ title: 'Linkedin learning Video Downloader.' });
+			} else {
+                console.log("Else", tabId);
+				disableButton(tabId);
+			}
+		} catch (error) {
+            disableButton(tabId);
+            console.log("catch", error);
+		}
 	});
+	function disableButton (tabId) {
+		browser.browserAction.disable(tabId);
+        browser.browserAction.setIcon({ path: '/img/icons/icon-48-black.png' });
+		browser.browserAction.setTitle({ title: 'Not Enable on this page!' });
+	};
 }
 
-browser.tabs.onActivated.addListener(activeButton);
+// browser.tabs.onActivated.addListener(buttonStatut);

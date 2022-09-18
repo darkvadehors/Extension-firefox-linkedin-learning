@@ -1,4 +1,4 @@
-/.DS_Store
+.DS_Store
 /Extension-firefox-linkedin-learning.code-workspace
 /background Fonctionne sans async.js
 /background a voir peu fonctionner.js
@@ -8,4 +8,3 @@ memo.txt
 memo.txt
 node_modules
 web-ext-artifacts/
-.DS_Store

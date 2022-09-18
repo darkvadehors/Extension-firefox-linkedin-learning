@@ -171,19 +171,27 @@ const downloadManager = async (videoDataObject) => {
 			erasing();
 			tabDownloaded.pop();
 		}
+
+		// delta.state.current === 'interrupted '
 		if (delta.state && delta.state.current === 'complete') {
 			if (tableau1.length !== 0) {
 				tableau2 = [];
 				tableau2.push(await tableau1.shift());
-				badge(tableau1.length + 1 , 0, 'red');
+				badge(tableau1.length + 1, 0, 'red');
 				downloadVideo(tableau2, totalVideoToDownload);
 			} else {
-				browser.downloads.onChanged.removeListener(handleChanged);
-				browser.downloads.onCreated.removeListener(handleCreated);
-				badge();
+				finish();
 			}
+		} else if (delta.state && delta.state.current === 'interrupted') {
+			finish();
 		}
 	}
+
+	const finish = () => {
+		browser.downloads.onChanged.removeListener(handleChanged);
+		browser.downloads.onCreated.removeListener(handleCreated);
+		badge();
+	};
 }; // end Download Manager
 
 /**
@@ -223,6 +231,7 @@ const downloadVideo = (videoDataObject, totalVideoToDownload = '1') => {
 				saveAs: false,
 			});
 		} catch (error) {
+			badge();
 			console.error(`Error videoDataObject Url ${name} - ${element.videoUrl}`);
 		}
 	});

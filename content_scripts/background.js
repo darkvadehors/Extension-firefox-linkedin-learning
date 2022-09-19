@@ -66,7 +66,7 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 	const promise1 = await new Promise(async (resolve) => {
 		// using `while` loop
 		while (i < coursesUrl.length) {
-			badge(i + 1, coursesUrl.length, "red");
+			badge(i + 1, coursesUrl.length);
 
 			// 1st promise
 			await new Promise((resolve) => {

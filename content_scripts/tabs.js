@@ -22,7 +22,7 @@
 					clearInterval(cound);
 					resolve(1);
 				}
-			}, 2000);
+			}, 1000);
 			// declare videoData Object
 			videoData = {
 				index: 0,

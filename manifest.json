@@ -5,8 +5,9 @@
     "description": "Download all the videos of a Linkedin Learning Premium training",
     "homepage_url": "https://github.com/darkvadehors/Extension-firefox-linkedin-learning",
     "icons": {
-        "32": "img/icons/icon-32.png",
-        "48": "img/icons/icon-48.png"
+        "32": "img/icons/icon-green.svg",
+        "48": "img/icons/icon-green.svg",
+        "96": "img/icons/icon-green.svg"
     },
     "permissions": [
         "<all_urls>",
@@ -17,7 +18,7 @@
         "webRequestBlocking"
     ],
     "browser_action": {
-        "default_icon": "img/icons/icon-48.png",
+        "default_icon": "img/icons/icon-green.svg",
         "default_title": "Linkedin learning Video Downloader"
     },
     "background": {

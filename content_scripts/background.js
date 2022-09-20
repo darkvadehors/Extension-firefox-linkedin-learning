@@ -34,7 +34,7 @@ const linkedinLearningVideoDownloader = async () => {
 const badge = (nbr = 0, total = 0, color = 'rgb(53, 167, 90)') => {
 	// color in red the number on Icon
 	// browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
-	browser.browserAction.setIcon({ path: '/img/icons/icon-48-red.png' });
+	browser.browserAction.setIcon({ path: '/img/icons/icon-red.svg' });
 	let text;
 	// add the number of the course and the red color to the button
 	if (nbr > 0) {
@@ -49,7 +49,7 @@ const badge = (nbr = 0, total = 0, color = 'rgb(53, 167, 90)') => {
 	} else {
 		browser.browserAction.setBadgeText({ text: '' });
 		browser.browserAction.setIcon({
-			path: '/img/icons/icon-48.png',
+			path: '/img/icons/icon-green.svg',
 		});
 	}
 	// resolve('badge OK');
@@ -336,7 +336,7 @@ function buttonStatut() {
 			if (url.indexOf('www.linkedin.com/learning/') > -1) {
 				console.log('if');
 				browser.browserAction.enable(tabId);
-				browser.browserAction.setIcon({ path: '/img/icons/icon-48.png' });
+				browser.browserAction.setIcon({ path: '/img/icons/icon-green.svg' });
 				browser.browserAction.setTitle({ title: 'Linkedin learning Video Downloader.' });
 			} else {
 				console.log('Else', tabId);
@@ -349,7 +349,7 @@ function buttonStatut() {
 	});
 	function disableButton(tabId) {
 		browser.browserAction.disable(tabId);
-		browser.browserAction.setIcon({ path: '/img/icons/icon-48-black.png' });
+		browser.browserAction.setIcon({ path: '/img/icons/icon-black.svg' });
 		browser.browserAction.setTitle({ title: 'Not Enable on this page!' });
 	}
 }

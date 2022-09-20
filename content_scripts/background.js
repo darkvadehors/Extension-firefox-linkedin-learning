@@ -58,7 +58,6 @@ const badge = (nbr = 0, total = 0, color = 'rgb(53, 167, 90)') => {
 /**
  * fucntion Get Video Url Loop With promise
  */
-//FIXME efface le compteur si on ferme un onglet
 const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 	let tabId;
 	let videoDataObject = [];
@@ -85,8 +84,14 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 				 * new
 				 */
 				function logOnCompleted(details) {
-
 					if (details.url === coursesUrl[i]) {
+						const cound = setInterval(() => {
+							//  lance le compteur avec le temps maximum d'un onglet
+							// si pas annuler avant la fin c'est qu'il y a une erreur donc badge 0
+							clearInterval(cound);
+							badge();
+						}, 14000);
+
 						browser.tabs
 							.executeScript(tabId, { file: '/content_scripts/tabs.js' })
 							.then(async (results) => {
@@ -98,11 +103,13 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 									console.debug(`Error in Open Tabs Id:${tabId}`);
 									i--;
 									badge();
+									clearInterval(cound);
 								} else {
 									// set index in results
 									results[0].index = i + 1;
 									videoDataObject.push(results);
 									browser.tabs.remove(tabId);
+									clearInterval(cound);
 								}
 
 								// return results;
@@ -110,13 +117,12 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 								resolve(1);
 							}) // end then
 							.catch(() => {
-                                console.log("=================");
+								console.log('=================');
 								browser.webNavigation.onCompleted.removeListener(logOnCompleted);
 								badge();
 							});
-					}; // end if
-				}; // end fx logOnCompleted
-
+					} // end if
+				} // end fx logOnCompleted
 			}); // end Promise
 
 			i++;
@@ -183,15 +189,13 @@ const downloadManager = async (videoDataObject) => {
 
 		//  if delta.id is in array tabDownloading remove on and add a new DL
 		if (tabDownloading.includes(delta.id)) {
-
 			if (delta.state && delta.state.current === 'complete') {
 				if (tableau1.length !== 0) {
 					tableau2 = [];
 					tableau2.push(await tableau1.shift());
 					badge(tableau1.length + 1, 0, 'red');
 					downloadVideo(tableau2, totalVideoToDownload);
-                    erasingDownloadingList();
-
+					erasingDownloadingList();
 				} else {
 					finish();
 				}

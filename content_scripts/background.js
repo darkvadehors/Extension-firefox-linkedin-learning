@@ -3,7 +3,6 @@
 // TODO check if page in learning and change color icon
 
 const linkedinLearningVideoDownloader = async () => {
-
 	// receive the array from script.js
 	browser.runtime.onMessage.addListener((requestCs) => {
 		// console.info('LL-VideoDl-Video in course :', requestCs.courses_url.length);
@@ -34,7 +33,7 @@ const linkedinLearningVideoDownloader = async () => {
 const badge = (nbr = 0, total = 0, color = 'rgb(53, 167, 90)') => {
 	// color in red the number on Icon
 	// browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
-	browser.browserAction.setIcon({ path: '/img/icons/icon-48-red.png' });
+	browser.browserAction.setIcon({ path: '/img/icons/icon-red.svg' });
 	let text;
 	// add the number of the course and the red color to the button
 	if (nbr > 0) {
@@ -49,7 +48,7 @@ const badge = (nbr = 0, total = 0, color = 'rgb(53, 167, 90)') => {
 	} else {
 		browser.browserAction.setBadgeText({ text: '' });
 		browser.browserAction.setIcon({
-			path: '/img/icons/icon-48.png',
+			path: '/img/icons/icon-green.svg',
 		});
 	}
 	// resolve('badge OK');
@@ -66,7 +65,7 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 	const promise1 = await new Promise(async (resolve) => {
 		// using `while` loop
 		while (i < coursesUrl.length) {
-			badge(i + 1, coursesUrl.length, "red");
+			badge(i + 1, coursesUrl.length);
 
 			// 1st promise
 			await new Promise((resolve) => {
@@ -85,35 +84,43 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 				 */
 				function logOnCompleted(details) {
 					if (details.url === coursesUrl[i]) {
+						const cound = setInterval(() => {
+							//  lance le compteur avec le temps maximum d'un onglet
+							// si pas annuler avant la fin c'est qu'il y a une erreur donc badge 0
+							clearInterval(cound);
+							badge();
+						}, 14000);
+
 						browser.tabs
 							.executeScript(tabId, { file: '/content_scripts/tabs.js' })
 							.then(async (results) => {
 								// console.debug(`Results video N°${i + 1}-${results[0].videoUrl}`);
 
 								if (results[0] === 'Error' || results[0] === undefined || results[0] === null) {
-									console.log('result erreur');
 									browser.tabs.remove(tabId);
 									console.debug(`Error in Open Tabs Id:${tabId}`);
 									i--;
 									badge();
+									clearInterval(cound);
 								} else {
 									// set index in results
 									results[0].index = i + 1;
 									videoDataObject.push(results);
 									browser.tabs.remove(tabId);
+									clearInterval(cound);
 								}
 
 								// return results;
 								browser.webNavigation.onCompleted.removeListener(logOnCompleted);
 								resolve(1);
-							})
+							}) // end then
 							.catch(() => {
 								browser.webNavigation.onCompleted.removeListener(logOnCompleted);
 								badge();
 							});
-					}
-				}
-			});
+					} // end if
+				} // end fx logOnCompleted
+			}); // end Promise
 
 			i++;
 		}
@@ -133,7 +140,7 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
  * @var videoDataObject
  */
 const downloadManager = async (videoDataObject) => {
-	let tabDownloaded = [];
+	let tabDownloading = [];
 
 	browser.downloads.onCreated.addListener(handleCreated);
 	browser.downloads.onChanged.addListener(handleChanged);
@@ -166,29 +173,32 @@ const downloadManager = async (videoDataObject) => {
 	//  surveille les dl creer
 	function handleCreated(item) {
 		// console.info(`dl n° ${item.id} creer`);
-		// push every dl in new array
-		tabDownloaded.push(item.id);
+		// push every dl in the tabDownloading array
+		tabDownloading.push(item.id);
 	}
 
 	// surveille les changement de statuts des dl
 	async function handleChanged(delta) {
-		if (tabDownloaded.length >= 3) {
-			erasing();
-			tabDownloaded.pop();
-		}
+		// if (tabDownloading.length >= 3) {
+		//
+		// 	tabDownloading.pop();
+		// }
 
-		// delta.state.current === 'interrupted '
-		if (delta.state && delta.state.current === 'complete') {
-			if (tableau1.length !== 0) {
-				tableau2 = [];
-				tableau2.push(await tableau1.shift());
-				badge(tableau1.length + 1, 0, 'red');
-				downloadVideo(tableau2, totalVideoToDownload);
-			} else {
+		//  if delta.id is in array tabDownloading remove on and add a new DL
+		if (tabDownloading.includes(delta.id)) {
+			if (delta.state && delta.state.current === 'complete') {
+				if (tableau1.length !== 0) {
+					tableau2 = [];
+					tableau2.push(await tableau1.shift());
+					badge(tableau1.length + 1, 0, 'red');
+					downloadVideo(tableau2, totalVideoToDownload);
+					erasingDownloadingList();
+				} else {
+					finish();
+				}
+			} else if (delta.state && delta.state.current === 'interrupted') {
 				finish();
 			}
-		} else if (delta.state && delta.state.current === 'interrupted') {
-			finish();
 		}
 	}
 
@@ -242,12 +252,17 @@ const downloadVideo = (videoDataObject, totalVideoToDownload = '1') => {
 	});
 };
 
-const erasing = () => {
+/**
+ * ErasingDownloadingList
+ * @description clean the browser download Manager
+ */
+const erasingDownloadingList = () => {
 	browser.downloads.erase({
 		limit: 1,
 		orderBy: ['startTime'],
 	});
 };
+
 /**
  * Function removeSpecialChar
  * @description cleaning sting
@@ -303,37 +318,37 @@ browser.browserAction.onClicked.addListener(onClick);
  *
  */
 function buttonStatut() {
-	let gettingActiveTab =  browser.tabs.query({ active: true, currentWindow: true });
+	let gettingActiveTab = browser.tabs.query({ active: true, currentWindow: true });
 
-    console.log("buttonStatut" ,gettingActiveTab);
+	console.log('buttonStatut', gettingActiveTab);
 
 	gettingActiveTab.then((tabs) => {
-        let tabId = tabs[0].id;
-        console.log('tabId :>> ', tabId);
-        disableButton(tabId);
-		let url =  tabs[0].url;
-        console.log('url :>> ',  url);
-        console.log('host :>> ', window.location.hostname);
+		let tabId = tabs[0].id;
+		console.log('tabId :>> ', tabId);
+		disableButton(tabId);
+		let url = tabs[0].url;
+		console.log('url :>> ', url);
+		console.log('host :>> ', window.location.hostname);
 		try {
-			if (url.indexOf('www.linkedin.com/learning/') > -1 ) {
-                console.log("if");
+			if (url.indexOf('www.linkedin.com/learning/') > -1) {
+				console.log('if');
 				browser.browserAction.enable(tabId);
-                browser.browserAction.setIcon({ path: '/img/icons/icon-48.png' });
+				browser.browserAction.setIcon({ path: '/img/icons/icon-green.svg' });
 				browser.browserAction.setTitle({ title: 'Linkedin learning Video Downloader.' });
 			} else {
-                console.log("Else", tabId);
+				console.log('Else', tabId);
 				disableButton(tabId);
 			}
 		} catch (error) {
-            disableButton(tabId);
-            console.log("catch", error);
+			disableButton(tabId);
+			console.log('catch', error);
 		}
 	});
-	function disableButton (tabId) {
+	function disableButton(tabId) {
 		browser.browserAction.disable(tabId);
-        browser.browserAction.setIcon({ path: '/img/icons/icon-48-black.png' });
+		browser.browserAction.setIcon({ path: '/img/icons/icon-black.svg' });
 		browser.browserAction.setTitle({ title: 'Not Enable on this page!' });
-	};
+	}
 }
 
 // browser.tabs.onActivated.addListener(buttonStatut);

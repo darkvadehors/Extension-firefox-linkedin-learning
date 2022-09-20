@@ -1,8 +1,8 @@
 /** @format */
 
 (async () => {
-    const minimum = 2000;
-    const maximum = 8000;
+    const minimum = 3000;
+    const maximum = 14000;
 	const delay = Math.floor(Math.random() * (maximum - minimum) + minimum);
 	let countDown = parseInt((delay - 1000) / 1000);
 
@@ -32,7 +32,7 @@
 				videoUrl: videoObject[0].src,
 			};
 
-		}, 1000);
+		}, 2000);
 	});
 
 	return videoData;

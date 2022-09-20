@@ -97,7 +97,6 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 								// console.debug(`Results video N°${i + 1}-${results[0].videoUrl}`);
 
 								if (results[0] === 'Error' || results[0] === undefined || results[0] === null) {
-									console.log('result erreur');
 									browser.tabs.remove(tabId);
 									console.debug(`Error in Open Tabs Id:${tabId}`);
 									i--;
@@ -116,7 +115,6 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 								resolve(1);
 							}) // end then
 							.catch(() => {
-								console.log('=================');
 								browser.webNavigation.onCompleted.removeListener(logOnCompleted);
 								badge();
 							});

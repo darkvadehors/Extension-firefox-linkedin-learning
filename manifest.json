@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Linkedin learning Video Downloader",
-    "version": "1.0.1",
+    "version": "1.0.0",
     "description": "Download all the videos of a Linkedin Learning Premium training",
     "homepage_url": "https://github.com/darkvadehors/Extension-firefox-linkedin-learning",
     "icons": {

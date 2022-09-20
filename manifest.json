@@ -3,6 +3,7 @@
     "name": "Linkedin learning Video Downloader",
     "version": "1.0.0",
     "description": "Download all the videos of a Linkedin Learning Premium training",
+    "author": "John Ben",
     "homepage_url": "https://github.com/darkvadehors/Extension-firefox-linkedin-learning",
     "icons": {
         "32": "img/icons/icon-green.svg",

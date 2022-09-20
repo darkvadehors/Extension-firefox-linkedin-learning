@@ -1,7 +1,6 @@
 /** @format */
 
 // TODO check if page in learning and change color icon
-//TODO voir pour un logo en SVG
 
 const linkedinLearningVideoDownloader = async () => {
 	// receive the array from script.js

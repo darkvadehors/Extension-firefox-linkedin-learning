@@ -105,7 +105,8 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 								} else {
 									// set index in results
 									results[0].index = i + 1;
-									videoDataObject.push(results);
+									results[0].pageUrl = coursesUrl[i];
+									videoDataObject.push(results[0]);
 									browser.tabs.remove(tabId);
 									clearInterval(cound);
 								}
@@ -129,8 +130,35 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 
 	const promise2 = await new Promise(async (resolve) => {
 		// download Video
+		await urlExport(videoDataObject);
 		await downloadManager(videoDataObject);
 		resolve(2);
+	});
+};
+/**
+ * function urlExport
+ */
+const urlExport = async (videoDataObject) => {
+
+	// var a = document.createElement('a');
+	const file = new Blob([JSON.stringify(videoDataObject)], { type: 'text/plain' });
+	const data = URL.createObjectURL(file);
+
+    const formation = await removeSpecialChars(videoDataObject[0].formationTitle);
+    const videoFileName =
+			'Linkedin-Learning/' +
+			formation +
+			'/' +
+			'liste_des_videos-' +
+			formation +
+			// cleaning title
+			'.txt';
+
+	browser.downloads.download({
+		url: data,
+		filename: videoFileName,
+		conflictAction: 'uniquify',
+		saveAs: false,
 	});
 };
 
@@ -218,7 +246,7 @@ const downloadManager = async (videoDataObject) => {
 const downloadVideo = (videoDataObject, totalVideoToDownload = '1') => {
 	videoDataObject.forEach(async (element) => {
 		let name = await removeSpecialChars(element.videoTitle);
-		let formation = await removeSpecialChars(element.formationTilte);
+		let formation = await removeSpecialChars(element.formationTitle);
 		let indexVideo = await indexZero(element.index);
 		let totalVideo = await indexZero(totalVideoToDownload);
 		let url = element.videoUrl;

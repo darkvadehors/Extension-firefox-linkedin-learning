@@ -1,6 +1,11 @@
 /** @format */
 
 // TODO check if page in learning and change color icon
+// TODO installation page
+// TODO ouviri l'onglet apres celui qui a lance le script
+// todo supprimer les tab dans la tableau tabdownloading
+// TODO "permissions": [ "<all_urls>", => linkedin/learning
+
 
 const linkedinLearningVideoDownloader = async () => {
 	// receive the array from script.js
@@ -69,7 +74,7 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 
 			// 1st promise
 			await new Promise((resolve) => {
-				browser.tabs.create({ url: coursesUrl[i], windowId: hostWindowId, active: true }, async (tab) => {
+				browser.tabs.create({ url: coursesUrl[i], windowId: hostWindowId, active: false,pinned:true }, async (tab) => {
 					tabId = tab.id;
 					resolve(1);
 				});
@@ -84,17 +89,18 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 				 */
 				function logOnCompleted(details) {
 					if (details.url === coursesUrl[i]) {
-						const cound = setInterval(() => {
-							//  lance le compteur avec le temps maximum d'un onglet
-							// si pas annuler avant la fin c'est qu'il y a une erreur donc badge 0
-							clearInterval(cound);
-							badge();
-						}, 14000);
+
 
 						browser.tabs
 							.executeScript(tabId, { file: '/content_scripts/tabs.js' })
 							.then(async (results) => {
 								// console.debug(`Results video N°${i + 1}-${results[0].videoUrl}`);
+                                const cound = setInterval(() => {
+                                    //  lance le compteur avec le temps maximum d'un onglet
+                                    // si pas annuler avant la fin c'est qu'il y a une erreur donc badge 0
+                                    clearInterval(cound);
+                                    badge();
+                                }, 16000);
 
 								if (results[0] === 'Error' || results[0] === undefined || results[0] === null) {
 									browser.tabs.remove(tabId);

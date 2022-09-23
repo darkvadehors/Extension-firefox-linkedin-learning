@@ -1,6 +1,11 @@
 /** @format */
 
 // TODO check if page in learning and change color icon
+// TODO check if page in learning and change color icon
+// TODO installation page
+// TODO ouviri l'onglet apres celui qui a lance le script
+// todo supprimer les tab dans la tableau tabdownloading
+// TODO "permissions": [ "<all_urls>", => linkedin/learning
 
 const linkedinLearningVideoDownloader = async () => {
 	// receive the array from script.js
@@ -12,9 +17,13 @@ const linkedinLearningVideoDownloader = async () => {
 		}
 
 		browser.windows.getCurrent().then(
-			(window) => {
+			async (window) => {
+				let gettingActiveTab = await browser.tabs.query({ active: true, currentWindow: true });
+
+				let tabIndex = await gettingActiveTab[0].index;
+
 				// Open tabs only in the window the extension was started i n!
-				getVideoUrlloopWithPromises(window.id, requestCs.courses_url);
+				getVideoUrlloopWithPromises(window.id, tabIndex, requestCs.courses_url);
 			},
 			(error) => {
 				console.error(`ERROR: Could not get window id: ${error};`);
@@ -57,7 +66,7 @@ const badge = (nbr = 0, total = 0, color = 'rgb(53, 167, 90)') => {
 /**
  * fucntion Get Video Url Loop With promise
  */
-const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
+const getVideoUrlloopWithPromises = async (hostWindowId, tabIndex, coursesUrl) => {
 	let tabId;
 	let videoDataObject = [];
 	let i = 0;
@@ -69,10 +78,13 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 
 			// 1st promise
 			await new Promise((resolve) => {
-				browser.tabs.create({ url: coursesUrl[i], windowId: hostWindowId, active: true }, async (tab) => {
-					tabId = tab.id;
-					resolve(1);
-				});
+				browser.tabs.create(
+					{ url: coursesUrl[i], windowId: hostWindowId, index: tabIndex + 1 , active: false },
+					async (tab) => {
+						tabId = tab.id;
+						resolve(1);
+					},
+				);
 			});
 
 			// 2th promise will resolve after the 1st promise
@@ -89,7 +101,7 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 							// si pas annuler avant la fin c'est qu'il y a une erreur donc badge 0
 							clearInterval(cound);
 							badge();
-						}, 14000);
+						}, 40000);
 
 						browser.tabs
 							.executeScript(tabId, { file: '/content_scripts/tabs.js' })
@@ -139,20 +151,19 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
  * function urlExport
  */
 const urlExport = async (videoDataObject) => {
-
 	// var a = document.createElement('a');
 	const file = new Blob([JSON.stringify(videoDataObject)], { type: 'text/plain' });
 	const data = URL.createObjectURL(file);
 
-    const formation = await removeSpecialChars(videoDataObject[0].formationTitle);
-    const videoFileName =
-			'Linkedin-Learning/' +
-			formation +
-			'/' +
-			'liste_des_videos-' +
-			formation +
-			// cleaning title
-			'.txt';
+	const formation = await removeSpecialChars(videoDataObject[0].formationTitle);
+	const videoFileName =
+		'Linkedin-Learning/' +
+		formation +
+		'/' +
+		'liste_des_videos-' +
+		formation +
+		// cleaning title
+		'.txt';
 
 	browser.downloads.download({
 		url: data,

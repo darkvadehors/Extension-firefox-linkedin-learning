@@ -157,7 +157,7 @@ const downloadManager = async (videoDataObject) => {
 	/**
 	 * Tableau 1 est une copy de VideoDataObject
 	 */
-	var tableau1 = [...videoDataObject.flat()];
+	var tableau1 = [...videoDataObject.flat()];//FIXME Attention array in array
 
 	var tableau2 = [];
 

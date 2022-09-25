@@ -63,12 +63,6 @@ const badge = (nbr = 0, total = 0, color = 'rgb(53, 167, 90)') => {
  * fucntion Get Video Url Loop With promise
  */
 const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
-	// recupère les info de l'onglet
-	const gettingActiveTab = await browser.tabs.query({ active: true, currentWindow: true });
-
-	// regle le nouvelle onglet + 1
-	const tabIndex = (await gettingActiveTab[0].index) + 1;
-
 	let tabId;
 	let videoDataObject = [];
 	let i = 0;
@@ -76,6 +70,13 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 	const promise1 = await new Promise(async (resolve) => {
 		// using `while` loop
 		while (i < coursesUrl.length) {
+			// recupère les info de l'onglet
+			let gettingActiveTab = await browser.tabs.query({ active: true, currentWindow: true });
+
+			// regle le nouvelle onglet + 1
+			let tabIndex = (await gettingActiveTab[0].index) + 1;
+
+			// affiche le nômbre de videos
 			badge(i + 1, coursesUrl.length);
 
 			// 1st promise

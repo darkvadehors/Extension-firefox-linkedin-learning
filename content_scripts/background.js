@@ -9,7 +9,7 @@
 
 const linkedinLearningVideoDownloader = async () => {
 	// receive the array from script.js
-	browser.runtime.onMessage.addListener((requestCs) => {
+	browser.runtime.onMessage.addListener(async (requestCs) => {
 		// console.info('LL-VideoDl-Video in course :', requestCs.courses_url.length);
 
 		if (!requestCs.courses_url) {
@@ -17,13 +17,9 @@ const linkedinLearningVideoDownloader = async () => {
 		}
 
 		browser.windows.getCurrent().then(
-			async (window) => {
-				let gettingActiveTab = await browser.tabs.query({ active: true, currentWindow: true });
-
-				let tabIndex = await gettingActiveTab[0].index;
-
+			(window) => {
 				// Open tabs only in the window the extension was started i n!
-				getVideoUrlloopWithPromises(window.id, tabIndex, requestCs.courses_url);
+				getVideoUrlloopWithPromises(window.id, requestCs.courses_url);
 			},
 			(error) => {
 				console.error(`ERROR: Could not get window id: ${error};`);
@@ -66,7 +62,13 @@ const badge = (nbr = 0, total = 0, color = 'rgb(53, 167, 90)') => {
 /**
  * fucntion Get Video Url Loop With promise
  */
-const getVideoUrlloopWithPromises = async (hostWindowId, tabIndex, coursesUrl) => {
+const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
+	// recupère les info de l'onglet
+	const gettingActiveTab = await browser.tabs.query({ active: true, currentWindow: true });
+
+	// regle le nouvelle onglet + 1
+	const tabIndex = (await gettingActiveTab[0].index) + 1;
+
 	let tabId;
 	let videoDataObject = [];
 	let i = 0;
@@ -79,7 +81,7 @@ const getVideoUrlloopWithPromises = async (hostWindowId, tabIndex, coursesUrl) =
 			// 1st promise
 			await new Promise((resolve) => {
 				browser.tabs.create(
-					{ url: coursesUrl[i], windowId: hostWindowId, index: tabIndex + 1 , active: false },
+					{ url: coursesUrl[i], windowId: hostWindowId, index: tabIndex, active: false },
 					async (tab) => {
 						tabId = tab.id;
 						resolve(1);

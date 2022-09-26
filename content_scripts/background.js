@@ -1,11 +1,7 @@
 /** @format */
 
 // TODO check if page in learning and change color icon
-// TODO check if page in learning and change color icon
 // TODO installation page
-// TODO ouviri l'onglet apres celui qui a lance le script
-// todo supprimer les tab dans la tableau tabdownloading
-// TODO "permissions": [ "<all_urls>", => linkedin/learning
 
 const linkedinLearningVideoDownloader = async () => {
 	// receive the array from script.js
@@ -82,7 +78,7 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 			// 1st promise
 			await new Promise((resolve) => {
 				browser.tabs.create(
-					{ url: coursesUrl[i], windowId: hostWindowId, index: tabIndex, active: false },
+					{ url: coursesUrl[i], windowId: hostWindowId, index: tabIndex, active: true },
 					async (tab) => {
 						tabId = tab.id;
 						resolve(1);
@@ -145,35 +141,10 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 
 	const promise2 = await new Promise(async (resolve) => {
 		// download Video
-		await urlExport(videoDataObject);
 		await downloadManager(videoDataObject);
 		resolve(2);
 	});
-};
-/**
- * function urlExport
- */
-const urlExport = async (videoDataObject) => {
-	// var a = document.createElement('a');
-	const file = new Blob([JSON.stringify(videoDataObject)], { type: 'text/plain' });
-	const data = URL.createObjectURL(file);
 
-	const formation = await removeSpecialChars(videoDataObject[0].formationTitle);
-	const videoFileName =
-		'Linkedin-Learning/' +
-		formation +
-		'/' +
-		'liste_des_videos-' +
-		formation +
-		// cleaning title
-		'.txt';
-
-	browser.downloads.download({
-		url: data,
-		filename: videoFileName,
-		conflictAction: 'uniquify',
-		saveAs: false,
-	});
 };
 
 /**
@@ -182,31 +153,47 @@ const urlExport = async (videoDataObject) => {
  * @var videoDataObject
  */
 const downloadManager = async (videoDataObject) => {
-	let tabDownloading = [];
-
 	browser.downloads.onCreated.addListener(handleCreated);
 	browser.downloads.onChanged.addListener(handleChanged);
+
+	// Liste en cours de DL
+	let tabDownloading = [];
 
 	// mise en forme du nbr total de video
 	let totalVideoToDownload = videoDataObject.length;
 
-	/**
-	 * Tableau 1 est une copy de VideoDataObject
-	 */
+	// Tableau 1 est une copy de VideoDataObject
 	var tableau1 = [...videoDataObject.flat()];
 
+	// Tableau est la file d'attente a dl
 	var tableau2 = [];
 
-	for (let index = 0; index < 1; index++) {
-		tableau2.push(tableau1.shift());
-	}
+	// enregistrement de la liste de fichiers
+	const file = new Blob([JSON.stringify(videoDataObject)], { type: 'text/plain' });
+	const data = URL.createObjectURL(file);
 
-	let i = 0;
+	// get the formatin title
+	const formation = await removeSpecialChars(videoDataObject[0].formationTitle);
+
+	// Make title file
+	const videoFileName = `videos_data_${formation}`;
+
+	//  initialize the first DL whit the list file
+	tableau2[0] = {
+		index: 0,
+		formationTitle: formation,
+		videoTitle: videoFileName,
+		videoUrl: data,
+	};
+
 	/**
 	 * on boucle sur l'object si le nbr de video télécharge est inf au nbr de video à télécharger
 	 * */
+	let i = 0;
 	while (i < tableau2.length) {
+		console.log('While tableau2 :>> ', tableau2.length);
 		badge(tableau1.length + 1, 0, 'red');
+		console.log('add 1');
 		downloadVideo(tableau2, totalVideoToDownload);
 		tableau2.shift();
 		i++;
@@ -221,6 +208,7 @@ const downloadManager = async (videoDataObject) => {
 
 	// surveille les changement de statuts des dl
 	async function handleChanged(delta) {
+		console.log('delta :>> ', delta);
 		// if (tabDownloading.length >= 3) {
 		//
 		// 	tabDownloading.pop();
@@ -228,11 +216,14 @@ const downloadManager = async (videoDataObject) => {
 
 		//  if delta.id is in array tabDownloading remove on and add a new DL
 		if (tabDownloading.includes(delta.id)) {
+			console.log('Check dans tabDownloading');
 			if (delta.state && delta.state.current === 'complete') {
+				console.log('Check if complete');
 				if (tableau1.length !== 0) {
 					tableau2 = [];
 					tableau2.push(await tableau1.shift());
 					badge(tableau1.length + 1, 0, 'red');
+					console.log('add new');
 					downloadVideo(tableau2, totalVideoToDownload);
 					erasingDownloadingList();
 				} else {
@@ -254,18 +245,24 @@ const downloadManager = async (videoDataObject) => {
 /**
  * Function donwload Video
  * @description Function for download video from the array Url
- * @var url: array with all Url video
+ * @var downloadTable: array with all Url video: [{index: number, pageUrl: string, formationTitle: string,videoTitle: string,videoTastModified:string,videoUrl:string}]
  * @var totalVideoToDownload: optional, default 1
  */
-const downloadVideo = (videoDataObject, totalVideoToDownload = '1') => {
-	videoDataObject.forEach(async (element) => {
+const downloadVideo = (downloadTable, totalVideoToDownload = '1') => {
+	downloadTable.forEach(async (element) => {
 		let name = await removeSpecialChars(element.videoTitle);
 		let formation = await removeSpecialChars(element.formationTitle);
 		let indexVideo = await indexZero(element.index);
 		let totalVideo = await indexZero(totalVideoToDownload);
 		let url = element.videoUrl;
+        let extention
 
-		// console.debug(`videoDataObject N°${indexVideo}  :>>`, url);
+        if (indexVideo == 0) {
+            extention = '.txt'
+        } else {
+            extention ='.mp4';
+        }
+		// console.debug(`downloadTable N°${indexVideo}  :>>`, url);
 
 		const videoFileName =
 			'Linkedin-Learning/' +
@@ -277,7 +274,7 @@ const downloadVideo = (videoDataObject, totalVideoToDownload = '1') => {
 			'-' +
 			// cleaning title
 			name +
-			'.mp4';
+			extention;
 
 		// Start download
 		try {

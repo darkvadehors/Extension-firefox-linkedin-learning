@@ -11,7 +11,7 @@
         "96": "img/icons/icon-green.svg"
     },
     "permissions": [
-        "<all_urls>",
+        "*://www.linkedin.com/learning/*",
         "activeTab",
         "downloads",
         "webNavigation",

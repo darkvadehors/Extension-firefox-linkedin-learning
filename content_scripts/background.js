@@ -2,14 +2,10 @@
 
 // TODO check if page in learning and change color icon
 // TODO installation page
-// TODO ouviri l'onglet apres celui qui a lance le script
-// todo supprimer les tab dans la tableau tabdownloading
-// TODO "permissions": [ "<all_urls>", => linkedin/learning
-
 
 const linkedinLearningVideoDownloader = async () => {
 	// receive the array from script.js
-	browser.runtime.onMessage.addListener((requestCs) => {
+	browser.runtime.onMessage.addListener(async (requestCs) => {
 		// console.info('LL-VideoDl-Video in course :', requestCs.courses_url.length);
 
 		if (!requestCs.courses_url) {
@@ -70,14 +66,24 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 	const promise1 = await new Promise(async (resolve) => {
 		// using `while` loop
 		while (i < coursesUrl.length) {
+			// recupère les info de l'onglet
+			let gettingActiveTab = await browser.tabs.query({ active: true, currentWindow: true });
+
+			// regle le nouvelle onglet + 1
+			let tabIndex = (await gettingActiveTab[0].index) + 1;
+
+			// affiche le nômbre de videos
 			badge(i + 1, coursesUrl.length);
 
 			// 1st promise
 			await new Promise((resolve) => {
-				browser.tabs.create({ url: coursesUrl[i], windowId: hostWindowId, active: false,pinned:true }, async (tab) => {
-					tabId = tab.id;
-					resolve(1);
-				});
+				browser.tabs.create(
+					{ url: coursesUrl[i], windowId: hostWindowId, index: tabIndex, active: true },
+					async (tab) => {
+						tabId = tab.id;
+						resolve(1);
+					},
+				);
 			});
 
 			// 2th promise will resolve after the 1st promise
@@ -89,18 +95,17 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 				 */
 				function logOnCompleted(details) {
 					if (details.url === coursesUrl[i]) {
-
+						const cound = setInterval(() => {
+							//  lance le compteur avec le temps maximum d'un onglet
+							// si pas annuler avant la fin c'est qu'il y a une erreur donc badge 0
+							clearInterval(cound);
+							badge();
+						}, 40000);
 
 						browser.tabs
 							.executeScript(tabId, { file: '/content_scripts/tabs.js' })
 							.then(async (results) => {
 								// console.debug(`Results video N°${i + 1}-${results[0].videoUrl}`);
-                                const cound = setInterval(() => {
-                                    //  lance le compteur avec le temps maximum d'un onglet
-                                    // si pas annuler avant la fin c'est qu'il y a une erreur donc badge 0
-                                    clearInterval(cound);
-                                    badge();
-                                }, 16000);
 
 								if (results[0] === 'Error' || results[0] === undefined || results[0] === null) {
 									browser.tabs.remove(tabId);
@@ -111,7 +116,8 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 								} else {
 									// set index in results
 									results[0].index = i + 1;
-									videoDataObject.push(results);
+									results[0].pageUrl = coursesUrl[i];
+									videoDataObject.push(results[0]);
 									browser.tabs.remove(tabId);
 									clearInterval(cound);
 								}
@@ -138,6 +144,7 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
 		await downloadManager(videoDataObject);
 		resolve(2);
 	});
+
 };
 
 /**
@@ -146,31 +153,33 @@ const getVideoUrlloopWithPromises = async (hostWindowId, coursesUrl) => {
  * @var videoDataObject
  */
 const downloadManager = async (videoDataObject) => {
-	let tabDownloading = [];
-
 	browser.downloads.onCreated.addListener(handleCreated);
 	browser.downloads.onChanged.addListener(handleChanged);
+
+	// Liste en cours de DL
+	let tabDownloading = [];
 
 	// mise en forme du nbr total de video
 	let totalVideoToDownload = videoDataObject.length;
 
-	/**
-	 * Tableau 1 est une copy de VideoDataObject
-	 */
-	var tableau1 = [...videoDataObject.flat()];//FIXME Attention array in array
+	// Tableau 1 est une copy de VideoDataObject
+	var tableau1 = [...videoDataObject.flat()];
 
+	// Tableau est la file d'attente a dl
 	var tableau2 = [];
 
-	for (let index = 0; index < 1; index++) {
-		tableau2.push(tableau1.shift());
-	}
+    for (let index = 0; index < 1; index++) {
+        tableau2.push(tableau1.shift());
+    }
 
-	let i = 0;
 	/**
 	 * on boucle sur l'object si le nbr de video télécharge est inf au nbr de video à télécharger
 	 * */
+	let i = 0;
 	while (i < tableau2.length) {
+		console.log('While tableau2 :>> ', tableau2.length);
 		badge(tableau1.length + 1, 0, 'red');
+		console.log('add 1');
 		downloadVideo(tableau2, totalVideoToDownload);
 		tableau2.shift();
 		i++;
@@ -185,6 +194,7 @@ const downloadManager = async (videoDataObject) => {
 
 	// surveille les changement de statuts des dl
 	async function handleChanged(delta) {
+		console.log('delta :>> ', delta);
 		// if (tabDownloading.length >= 3) {
 		//
 		// 	tabDownloading.pop();
@@ -192,11 +202,14 @@ const downloadManager = async (videoDataObject) => {
 
 		//  if delta.id is in array tabDownloading remove on and add a new DL
 		if (tabDownloading.includes(delta.id)) {
+			console.log('Check dans tabDownloading');
 			if (delta.state && delta.state.current === 'complete') {
+				console.log('Check if complete');
 				if (tableau1.length !== 0) {
 					tableau2 = [];
 					tableau2.push(await tableau1.shift());
 					badge(tableau1.length + 1, 0, 'red');
+					console.log('add new');
 					downloadVideo(tableau2, totalVideoToDownload);
 					erasingDownloadingList();
 				} else {
@@ -218,18 +231,24 @@ const downloadManager = async (videoDataObject) => {
 /**
  * Function donwload Video
  * @description Function for download video from the array Url
- * @var url: array with all Url video
+ * @var downloadTable: array with all Url video: [{index: number, pageUrl: string, formationTitle: string,videoTitle: string,videoTastModified:string,videoUrl:string}]
  * @var totalVideoToDownload: optional, default 1
  */
-const downloadVideo = (videoDataObject, totalVideoToDownload = '1') => {
-	videoDataObject.forEach(async (element) => {
+const downloadVideo = (downloadTable, totalVideoToDownload = '1') => {
+	downloadTable.forEach(async (element) => {
 		let name = await removeSpecialChars(element.videoTitle);
-		let formation = await removeSpecialChars(element.formationTilte);
+		let formation = await removeSpecialChars(element.formationTitle);
 		let indexVideo = await indexZero(element.index);
 		let totalVideo = await indexZero(totalVideoToDownload);
 		let url = element.videoUrl;
+        let extention
 
-		// console.debug(`videoDataObject N°${indexVideo}  :>>`, url);
+        if (indexVideo == 0) {
+            extention = '.txt'
+        } else {
+            extention ='.mp4';
+        }
+		// console.debug(`downloadTable N°${indexVideo}  :>>`, url);
 
 		const videoFileName =
 			'Linkedin-Learning/' +
@@ -241,7 +260,7 @@ const downloadVideo = (videoDataObject, totalVideoToDownload = '1') => {
 			'-' +
 			// cleaning title
 			name +
-			'.mp4';
+			extention;
 
 		// Start download
 		try {
@@ -321,7 +340,7 @@ function onClick() {
 browser.browserAction.onClicked.addListener(onClick);
 
 /**
- *
+ * feature
  */
 function buttonStatut() {
 	let gettingActiveTab = browser.tabs.query({ active: true, currentWindow: true });

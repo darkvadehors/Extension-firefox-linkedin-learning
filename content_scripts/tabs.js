@@ -26,7 +26,8 @@
 			// declare videoData Object
 			videoData = {
 				index: 0,
-				formationTilte: formationTitle[0].innerText,
+                pageUrl: "",
+				formationTitle: formationTitle[0].innerText,
 				videoTitle: videoObject[0].ownerDocument.title,
 				videoTastModified: videoObject[0].ownerDocument.lastModified,
 				videoUrl: videoObject[0].src,
